@@ -1,6 +1,6 @@
 // https://projecteuler.net/problem=
 
-use crate::euler_tools;
+use crate::euler_tools::{self, Primes};
 
 pub fn make() -> super::super::Problem {
     super::super::Problem {

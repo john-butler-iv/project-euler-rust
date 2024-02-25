@@ -1,3 +1,5 @@
+// https://projecteuler.net/problem=1
+
 fn core_solve(limit: u64) -> u64 {
     (1..limit).filter(|n| n % 3 == 0 || n % 5 == 0).sum()
 }

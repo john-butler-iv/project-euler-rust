@@ -10,14 +10,10 @@ impl<T: PrimInt> Iterator for Fibonacci<T> {
     type Item = T;
 
     fn next(&mut self) -> Option<Self::Item> {
-        match self.curr {
-            Some(curr) => {
-                self.curr = curr.checked_add(&self.prev);
-                self.prev = curr;
-                Some(curr)
-            }
-            None => None,
-        }
+        let orig_curr = self.curr?;
+        self.curr = orig_curr.checked_add(&self.prev);
+        self.prev = orig_curr;
+        Some(orig_curr)
     }
 }
 
@@ -53,7 +49,7 @@ where
     }
 }
 
-pub fn is_palindrom(string: &str) -> bool {
+pub fn is_palindrome(string: &str) -> bool {
     let num_bytes = string.bytes().len();
     let mut reverse_string = string.bytes().rev();
     for (i, digit) in string.bytes().enumerate() {

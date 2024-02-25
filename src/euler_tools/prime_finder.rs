@@ -6,6 +6,7 @@ pub struct Primes {
     limit: u32,
 }
 
+#[allow(dead_code)]
 impl Primes {
     // mostly factoring out to share error message
     fn number_from_index(index: usize) -> u32 {

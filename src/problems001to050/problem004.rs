@@ -18,7 +18,7 @@ fn core_solve(digits: u8) -> u64 {
     for a in (min_b..=max).rev() {
         for b in (min_b..=a).rev() {
             let product = a * b;
-            if product > biggest && euler_tools::is_palindrom(&product.to_string()) {
+            if product > biggest && euler_tools::is_palindrome(&product.to_string()) {
                 biggest = product;
                 min_b = b + 1;
                 break;

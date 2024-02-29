@@ -29,8 +29,34 @@ where
     T: std::cmp::PartialOrd<T>,
 {
     /// exclusive bound
-    pub bound: T,
-    pub iter: Box<dyn Iterator<Item = T>>,
+    bound: T,
+    iter: Box<dyn Iterator<Item = T>>,
+}
+
+pub struct BoundedRefIterator<'a, T>
+where
+    T: std::cmp::PartialOrd<T>,
+{
+    /// exclusive bound
+    bound: T,
+    iter: Box<dyn Iterator<Item = &'a T> + 'a>,
+}
+
+impl<T: PartialOrd<T>> BoundedIterator<T> {
+    pub fn new(bound: T, iter: impl Iterator<Item = T> + 'static) -> Self {
+        BoundedIterator {
+            bound,
+            iter: Box::new(iter),
+        }
+    }
+}
+impl<'a, T: PartialOrd<T>> BoundedRefIterator<'a, T> {
+    pub fn new(bound: T, iter: impl Iterator<Item = &'a T> + 'a) -> Self {
+        BoundedRefIterator {
+            bound,
+            iter: Box::new(iter),
+        }
+    }
 }
 
 impl<T> Iterator for BoundedIterator<T>
@@ -38,6 +64,22 @@ where
     T: std::cmp::PartialOrd<T>,
 {
     type Item = T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let next = self.iter.next()?;
+        if next.ge(&self.bound) {
+            None
+        } else {
+            Some(next)
+        }
+    }
+}
+
+impl<'a, T> Iterator for BoundedRefIterator<'a, T>
+where
+    T: std::cmp::PartialOrd<T>,
+{
+    type Item = &'a T;
 
     fn next(&mut self) -> Option<Self::Item> {
         let next = self.iter.next()?;
@@ -87,13 +129,20 @@ mod tests {
     #[test]
     fn test_bounded_it() {
         const BOUND: i32 = 5;
-        let it = super::BoundedIterator {
-            bound: BOUND,
-            iter: Box::new(0..(BOUND + 1)),
-        };
+        let it = super::BoundedIterator::new(BOUND, 0..=(BOUND + 1));
 
         for value in it {
             assert!(value < BOUND);
+        }
+    }
+    #[test]
+    fn test_bounded_ref_it() {
+        const BOUND: i32 = 5;
+        let values: Vec<i32> = (0..=(BOUND + 1)).collect();
+        let it = super::BoundedRefIterator::new(BOUND, values.iter());
+
+        for value in it {
+            assert!(value < &BOUND);
         }
     }
 }

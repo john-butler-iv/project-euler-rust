@@ -1,5 +1,7 @@
 use std::cmp::max;
 
+use crate::euler_tools::BoundedRefIterator;
+
 pub struct Primes {
     prime_table: Box<[bool]>,
     primes: Vec<u32>,
@@ -61,15 +63,11 @@ impl Primes {
         todo!()
     }
 
-    /*
-       pub fn bounded_prime_iterator(&self, limit: &u32) -> crate::euler_tools::BoundedIterator<&u32> {
-           crate::euler_tools::BoundedIterator {
-               iter: Box::new(self.primes.iter()),
-               bound: limit,
-           }
-       }
-    */
-    pub fn prime_iterator(&self) -> std::slice::Iter<'_, u32> {
+    pub fn bounded_prime_iterator(&self, limit: u32) -> BoundedRefIterator<u32> {
+        BoundedRefIterator::new(limit, self.primes.iter())
+    }
+
+    pub fn prime_iterator(&self) -> std::slice::Iter<u32> {
         self.primes.iter()
     }
 
@@ -241,6 +239,16 @@ mod tests {
         assert_eq!(
             primes.unique_prime_factorize(&u64::from(last_prime.to_owned())),
             vec![last_prime.to_owned() as u64]
+        );
+    }
+
+    #[test]
+    fn bounded_prime_iterator() {
+        let primes = Primes::find_primes(100);
+        let bounded_primes: Vec<&u32> = primes.bounded_prime_iterator(50).collect();
+        assert_eq!(
+            bounded_primes,
+            vec![&2, &3, &5, &7, &11, &13, &17, &19, &23, &29, &&31, &37, &41, &43, &47,]
         );
     }
 }

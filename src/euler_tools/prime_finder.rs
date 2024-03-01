@@ -2,6 +2,7 @@ use std::cmp::max;
 
 use crate::euler_tools::BoundedRefIterator;
 
+#[derive(Debug)]
 pub struct Primes {
     prime_table: Box<[bool]>,
     primes: Vec<u32>,
@@ -16,6 +17,10 @@ impl Primes {
     }
     fn index_from_number(number: &u32) -> usize {
         usize::try_from(number.to_owned()).expect("usize should be at least 32 bits")
+    }
+
+    pub fn get_prime(&self, prime: usize) -> Option<&u32> {
+        self.primes.get(prime)
     }
 
     pub fn total_primes(&self) -> usize {
@@ -138,9 +143,21 @@ mod tests {
             primes.primes,
             vec![
                 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79,
-                83, 89, 97
+                83, 89, 97,
             ]
         );
+    }
+
+    #[test]
+    fn get_prime() {
+        let primes = Primes::find_primes(100);
+        let known_primes = [
+            2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83,
+            89, 97,
+        ];
+        for (i, p) in known_primes.iter().enumerate() {
+            assert_eq!(primes.get_prime(i), Some(p));
+        }
     }
 
     #[test]

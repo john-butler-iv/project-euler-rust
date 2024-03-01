@@ -108,6 +108,29 @@ pub fn is_palindrome(string: &str) -> bool {
     true
 }
 
+/// computes W_{-1} (-1/u)
+/// implementation of approximation from R. Iacono and J.P. Boyd mentioned on https://en.wikipedia.org/wiki/Lambert_W_function
+pub fn lambert_w_m1_neg_inv(u: f64) -> f64 {
+    let mut w = if u >= 4.0 {
+        -u.ln() - u.ln().ln()
+    } else if u >= 0.0 {
+        -1.0 - (2.0 * (1.0 - std::f64::consts::E / u)).sqrt()
+    } else {
+        panic!()
+    };
+
+    const MAX_ITERS: i32 = 64;
+    for _ in 1..=MAX_ITERS {
+        let init_w = w;
+        w = w * (1.0 + (-1.0 / (u * w)).ln()) / (1.0 + w);
+        if init_w == w {
+            return w;
+        }
+    }
+
+    w
+}
+
 #[cfg(test)]
 mod tests {
     use super::fibonacci_iterator;

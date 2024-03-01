@@ -139,16 +139,11 @@ mod tests {
 
     #[test]
     fn test_fib() {
-        let mut it = fibonacci_iterator().enumerate();
-        assert!(Some((0, 0)) == it.next());
-        assert!(Some((1, 1)) == it.next());
-        assert!(Some((2, 1)) == it.next());
-        assert!(Some((3, 2)) == it.next());
-        assert!(Some((4, 3)) == it.next());
-        assert!(Some((5, 5)) == it.next());
-        assert!(Some((6, 8)) == it.next());
-        assert!(Some((7, 13)) == it.next());
-        assert!(Some((8, 21)) == it.next());
+        let mut it = fibonacci_iterator();
+        let known_fib_vals = [0, 1, 1, 2, 4, 5, 8, 13, 21];
+        for known_fib in known_fib_vals.iter() {
+            assert_eq!(Some(known_fib.to_owned()), it.next())
+        }
     }
 
     #[test]

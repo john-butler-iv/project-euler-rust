@@ -133,6 +133,8 @@ pub fn lambert_w_m1_neg_inv(u: f64) -> f64 {
 
 #[cfg(test)]
 mod tests {
+    use num_traits::Pow;
+
     use super::fibonacci_iterator;
 
     #[test]
@@ -166,6 +168,37 @@ mod tests {
 
         for value in it {
             assert!(value < &BOUND);
+        }
+    }
+
+    #[test]
+    fn small_lam_w() {
+        // values computed using https://www.had2know.org/academics/lambert-w-function-calculator.html
+        let known_w_m1_vals = [0.0, 0.0, 0.0, -1.512135, -2.153292, -2.542641, -2.833148];
+
+        for (u, w) in known_w_m1_vals.iter().enumerate().skip(3) {
+            assert_eq!(
+                w.to_string(),
+                format!("{:.6}", super::lambert_w_m1_neg_inv(u as f64))
+            );
+        }
+    }
+
+    #[test]
+    fn big_lam_w() {
+        // values computed using https://www.had2know.org/academics/lambert-w-function-calculator.html
+        let known_w_m1_vals = [
+            0.0, 0.0, -6.472775, -9.118006, -11.667115, -14.163601, -16.626509, -19.066002,
+        ];
+
+        for (pow, w) in known_w_m1_vals.iter().enumerate().skip(2) {
+            assert_eq!(
+                w.to_string(),
+                format!(
+                    "{:.6}",
+                    super::lambert_w_m1_neg_inv(10.0_f64.pow(pow as f64))
+                )
+            );
         }
     }
 }

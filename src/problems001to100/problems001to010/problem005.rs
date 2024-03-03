@@ -2,8 +2,8 @@
 
 use crate::euler_tools::prime_finder::Primes;
 
-pub fn make() -> super::super::Problem {
-    super::super::Problem {
+pub fn make() -> crate::Problem {
+    crate::Problem {
         title: "Smallest Multiple",
         number: 5,
         solve: || core_solve(20),

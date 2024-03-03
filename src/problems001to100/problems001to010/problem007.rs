@@ -2,8 +2,8 @@
 
 use crate::euler_tools::{self, prime_finder::Primes};
 
-pub fn make() -> super::super::Problem {
-    super::super::Problem {
+pub fn make() -> crate::Problem {
+    crate::Problem {
         title: "10,001st Prime",
         number: 7,
         solve: || core_solve(10_001),

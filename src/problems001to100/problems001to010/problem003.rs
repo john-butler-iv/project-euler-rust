@@ -3,8 +3,8 @@
 use crate::euler_tools::prime_finder::Primes;
 use integer_sqrt::IntegerSquareRoot;
 
-pub fn make() -> super::super::Problem {
-    super::super::Problem {
+pub fn make() -> crate::Problem {
+    crate::Problem {
         title: "Largest Prime Factor",
         number: 3,
         solve: || core_solve(600851475143),

@@ -1,7 +1,7 @@
 // https://projecteuler.net/problem=6
 
-pub fn make() -> super::super::Problem {
-    super::super::Problem {
+pub fn make() -> crate::Problem {
+    crate::Problem {
         title: "Sum Square Difference",
         number: 6,
         solve: || core_solve(100),

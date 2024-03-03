@@ -2,8 +2,8 @@
 
 use crate::euler_tools;
 
-pub fn make() -> super::super::Problem {
-    super::super::Problem {
+pub fn make() -> crate::Problem {
+    crate::Problem {
         title: "Largest Panindrome Product",
         number: 4,
         solve: || core_solve(3),

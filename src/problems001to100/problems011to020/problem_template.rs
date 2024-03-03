@@ -11,7 +11,7 @@ pub fn make() -> super::super::Problem {
 }
 
 fn core_solve() -> u64 {
-    0u64
+    todo!()
 }
 
 #[cfg(test)]

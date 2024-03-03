@@ -48,7 +48,13 @@ impl Primes {
             }
         }
 
-        for (n, is_prime) in prime_table.iter().enumerate().take(limit).skip(sqrt_limit) {
+        for (n, is_prime) in prime_table
+            .iter()
+            .enumerate()
+            .take(limit)
+            // we've already added up to sqrt_limit. Because prime_table is 0-indexed, we need to skip one more
+            .skip(sqrt_limit + 1)
+        {
             if *is_prime {
                 primes.push(Self::number_from_index(n));
             }

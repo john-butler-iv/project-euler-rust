@@ -1,7 +1,7 @@
 // https://projecteuler.net/problem=2
 
-pub fn make() -> super::super::Problem {
-    super::super::Problem {
+pub fn make() -> crate::Problem {
+    crate::Problem {
         title: "Even Fibonacci Numbers",
         number: 2,
         solve: || core_solve(4_000_000),

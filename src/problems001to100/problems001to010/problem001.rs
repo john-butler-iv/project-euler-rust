@@ -4,8 +4,8 @@ fn core_solve(limit: u64) -> u64 {
     (1..limit).filter(|n| n % 3 == 0 || n % 5 == 0).sum()
 }
 
-pub fn make() -> super::super::Problem {
-    super::super::Problem {
+pub fn make() -> crate::Problem {
+    crate::Problem {
         title: "Multiples of 3 or 5",
         number: 1,
         solve: || core_solve(1000),

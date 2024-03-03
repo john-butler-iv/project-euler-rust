@@ -140,7 +140,7 @@ mod tests {
     #[test]
     fn test_fib() {
         let mut it = fibonacci_iterator();
-        let known_fib_vals = [0, 1, 1, 2, 4, 5, 8, 13, 21];
+        let known_fib_vals = [0, 1, 1, 2, 3, 5, 8, 13, 21];
         for known_fib in known_fib_vals.iter() {
             assert_eq!(Some(known_fib.to_owned()), it.next())
         }

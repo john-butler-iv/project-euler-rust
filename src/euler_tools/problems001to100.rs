@@ -1,3 +1,5 @@
+mod problems001to100;
+
 pub fn make_range() -> super::ProblemList {
     super::ProblemList {
         problem_range: make_problem_list(),
@@ -5,5 +7,5 @@ pub fn make_range() -> super::ProblemList {
 }
 
 fn make_problem_list() -> Vec<Option<super::Problem>> {
-    vec![None]
+    problems001to100::make_problem_list()
 }

@@ -1,8 +1,7 @@
 use std::time::{Duration, SystemTime};
 
 mod euler_tools;
-mod problems001to050;
-mod problems051to100;
+mod problems001to100;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Problem {
@@ -118,8 +117,14 @@ impl From<GetProblemError> for TimingError {
         TimingError::GetProblemError(value)
     }
 }
+impl From<std::time::SystemTimeError> for TimingError {
+    fn from(value: std::time::SystemTimeError) -> Self {
+        TimingError::SystemTimeError(value)
+    }
+}
 
 type TimingResult = Result<(u64, Duration), TimingError>;
+
 pub trait ProblemTimer {
     fn time_problem(&self, problem_number: u16) -> TimingResult;
     fn time_all(&self) -> Vec<Option<(&Problem, TimingResult)>>;
@@ -134,10 +139,7 @@ impl ProblemTimer for ProblemList {
 
         // TODO create a way to timeout - start solving on child thread, sleep on main thread, kill if returned before then?
 
-        match start_time.elapsed() {
-            Ok(duration) => Ok((answer, duration)),
-            Err(error) => Err(TimingError::SystemTimeError(error)),
-        }
+        Ok((answer, start_time.elapsed()?))
     }
     fn time_all(&self) -> Vec<Option<(&Problem, TimingResult)>> {
         self.problem_range
@@ -152,7 +154,7 @@ impl ProblemTimer for ProblemList {
 }
 
 pub fn make_all_problems() -> ProblemList {
-    problems001to050::make_range()
-        .join(problems051to100::make_range())
-        .expect("problem list could not be joined")
+    problems001to100::make_range()
+    //.join(problems011to020::make_range())
+    //.expect("problem list could not be joined")
 }

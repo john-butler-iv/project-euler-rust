@@ -13,7 +13,7 @@ pub fn make() -> crate::Problem {
 fn core_solve(limit: usize) -> u64 {
     prime_finder::Primes::find_primes(limit)
         .prime_iterator()
-        // convert to u64 to prevent overflow
+        // convert to u64 to prevent overflow and allow sum to work
         .map(|p| *p as u64)
         .sum()
 }

@@ -6,7 +6,7 @@ pub fn make() -> crate::Problem {
     crate::Problem {
         title: "Largest Product in a Grid",
         number: 11,
-        solve: || core_solve(),
+        solve: core_solve,
     }
 }
 

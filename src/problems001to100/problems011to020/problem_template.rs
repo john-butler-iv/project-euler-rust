@@ -2,8 +2,8 @@
 
 use crate::euler_tools::{self, Primes};
 
-pub fn make() -> super::super::Problem {
-    super::super::Problem {
+pub fn make() -> crate::Problem {
+    crate::Problem {
         title: "template",
         number: 0,
         solve: || core_solve(),

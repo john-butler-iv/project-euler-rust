@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 num-traits = "0.2.18"
 integer-sqrt = "0.1.5"
+strum = "0.26"
+strum_macros = "0.26"

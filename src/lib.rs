@@ -92,7 +92,7 @@ impl ProblemList {
         );
 
         for (other_index, problem) in other.problem_range.into_iter().enumerate() {
-            if other_index + b > c {
+            if other_index + b >= c {
                 let total_problems: &mut Vec<Option<Problem>> = self.problem_range.as_mut();
                 total_problems.push(problem);
             } else if self.problem_range[other_index + b - a].is_none() {

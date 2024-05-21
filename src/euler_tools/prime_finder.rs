@@ -102,6 +102,9 @@ impl Primes {
                 factors.push(p);
                 n /= p;
             }
+            if n == 1 {
+                break;
+            }
         }
 
         factors
@@ -131,10 +134,36 @@ impl Primes {
                         break;
                     }
                 }
+
+                if n == 1 {
+                    break;
+                }
             }
         }
 
         factors
+    }
+
+    pub fn divisors(&self, n: &u64) -> usize {
+        let factors = self.prime_factorize(n);
+        let mut divisors: usize = 1;
+
+        let mut factor_index = 0;
+        while factor_index < factors.len() {
+            for next_factor_index in factor_index + 1..=factors.len() {
+                if next_factor_index < factors.len()
+                    && factors[factor_index] == factors[next_factor_index]
+                {
+                    continue;
+                }
+
+                let num_factors = next_factor_index - factor_index + 1;
+                divisors *= num_factors;
+                factor_index = next_factor_index
+            }
+        }
+
+        divisors
     }
 }
 

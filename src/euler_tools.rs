@@ -1,5 +1,6 @@
 pub mod prime_finder;
 
+use integer_sqrt::IntegerSquareRoot;
 use num_traits::PrimInt;
 
 pub struct Fibonacci<T: PrimInt> {
@@ -131,6 +132,14 @@ pub fn lambert_w_m1_neg_inv(u: f64) -> f64 {
     w
 }
 
+pub fn triangle(n: u64) -> u64 {
+    n * (n + 1) / 2
+}
+
+pub fn inverse_triange(tri: u64) -> u64 {
+    ((8 * tri + 1).integer_sqrt() - 1) / 2
+}
+
 #[cfg(test)]
 mod tests {
     use num_traits::Pow;
@@ -194,6 +203,16 @@ mod tests {
                     super::lambert_w_m1_neg_inv(10.0_f64.pow(pow as f64))
                 )
             );
+        }
+    }
+
+    #[test]
+    fn first_ten_tri_nums() {
+        const MAX_TRI: u64 = 10;
+        let mut curr_tri = 0;
+        for n in 0..=MAX_TRI {
+            curr_tri += n;
+            assert_eq!(curr_tri, super::triangle(n));
         }
     }
 }

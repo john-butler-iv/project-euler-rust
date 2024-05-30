@@ -1,5 +1,7 @@
 use std::cmp::max;
 
+use integer_sqrt::IntegerSquareRoot;
+
 use crate::euler_tools::BoundedRefIterator;
 
 #[derive(Debug)]
@@ -144,7 +146,46 @@ impl Primes {
         factors
     }
 
+    pub fn all_factors(&self, n: &u64) -> Vec<u64> {
+        if n < &u64::from(self.limit)
+            && self.is_prime(&u32::try_from(*n).expect("just checked less than u32"))
+        {
+            return vec![1, *n];
+        }
+        if *n < 2 {
+            return vec![*n];
+        }
+
+        let mut lower_factors = vec![1];
+        let mut upper_factors = vec![*n];
+
+        let sqrt = n.integer_sqrt();
+
+        for i in 2..sqrt {
+            if n % i == 0 {
+                lower_factors.push(i);
+                upper_factors.push(n / i);
+            }
+        }
+
+        if sqrt * sqrt == *n {
+            lower_factors.push(sqrt);
+        } else if n % sqrt == 0 {
+            lower_factors.push(sqrt);
+            upper_factors.push(n / sqrt);
+        }
+
+        lower_factors.extend(upper_factors.iter().rev());
+        lower_factors
+    }
+
     pub fn divisors(&self, n: &u64) -> usize {
+        if *n == 0 {
+            return 0;
+        }
+        if *n == 1 {
+            return 1;
+        }
         let factors = self.prime_factorize(n);
         let mut divisors: usize = 1;
 
@@ -164,6 +205,10 @@ impl Primes {
         }
 
         divisors
+    }
+
+    pub fn sigma(&self, n: &u64) -> u64 {
+        self.all_factors(n).iter().sum()
     }
 }
 
@@ -230,6 +275,19 @@ mod tests {
     }
 
     #[test]
+    fn primes_all_factored() {
+        let primes = Primes::find_primes(100);
+        assert_eq!(primes.all_factors(&0), vec![0]);
+        assert_eq!(primes.all_factors(&1), vec![1]);
+        for p in primes.primes.iter() {
+            assert_eq!(
+                primes.all_factors(&u64::from(p.to_owned())),
+                vec![1, p.to_owned() as u64]
+            )
+        }
+    }
+
+    #[test]
     fn composites_factored() {
         let primes = Primes::find_primes(100);
         assert_eq!(primes.prime_factorize(&4), vec![2, 2]);
@@ -249,6 +307,17 @@ mod tests {
         assert_eq!(primes.unique_prime_factorize(&9), vec![3]);
         assert_eq!(primes.unique_prime_factorize(&10), vec![2, 5]);
         assert_eq!(primes.unique_prime_factorize(&12), vec![2, 3]);
+    }
+
+    #[test]
+    fn composites_all_factored() {
+        let primes = Primes::find_primes(100);
+        assert_eq!(primes.all_factors(&4), vec![1, 2, 4]);
+        assert_eq!(primes.all_factors(&6), vec![1, 2, 3, 6]);
+        assert_eq!(primes.all_factors(&8), vec![1, 2, 4, 8]);
+        assert_eq!(primes.all_factors(&9), vec![1, 3, 9]);
+        assert_eq!(primes.all_factors(&10), vec![1, 2, 5, 10]);
+        assert_eq!(primes.all_factors(&12), vec![1, 2, 3, 4, 6, 12]);
     }
 
     #[test]
@@ -292,6 +361,18 @@ mod tests {
             primes.unique_prime_factorize(&u64::from(last_prime.to_owned())),
             vec![last_prime.to_owned() as u64]
         );
+    }
+
+    #[test]
+    fn divisors_accurate() {
+        let primes = Primes::find_primes(100);
+        for n in 2..primes.limit as u64 {
+            assert_eq!(
+                primes.divisors(&n),
+                primes.all_factors(&n).len(),
+                "finding divisors of {n}."
+            );
+        }
     }
 
     #[test]

@@ -1,14 +1,22 @@
+mod additional_number_contansts;
 pub mod prime_finder;
 
-use integer_sqrt::IntegerSquareRoot;
-use num_traits::PrimInt;
+use std::{
+    cmp::Ordering,
+    ops::{Add, Mul},
+};
 
-pub struct Fibonacci<T: PrimInt> {
-    curr: Option<T>,
-    prev: T,
+use additional_number_contansts::MoreUnsignedConstants;
+use integer_sqrt::IntegerSquareRoot;
+use num_bigint::BigUint;
+use num_traits::{One, PrimInt, Unsigned};
+
+pub struct Fibonacci<I: Unsigned + PrimInt> {
+    curr: Option<I>,
+    prev: I,
 }
-impl<T: PrimInt> Iterator for Fibonacci<T> {
-    type Item = T;
+impl<I: Unsigned + PrimInt> Iterator for Fibonacci<I> {
+    type Item = I;
 
     fn next(&mut self) -> Option<Self::Item> {
         let orig_curr = self.curr?;
@@ -18,10 +26,10 @@ impl<T: PrimInt> Iterator for Fibonacci<T> {
     }
 }
 
-pub fn fibonacci_iterator<T: PrimInt>() -> Fibonacci<T> {
+pub fn fibonacci_iterator<I: Unsigned + PrimInt>() -> Fibonacci<I> {
     Fibonacci {
-        curr: Some(T::zero()),
-        prev: T::one(),
+        curr: Some(I::zero()),
+        prev: I::one(),
     }
 }
 
@@ -132,23 +140,57 @@ pub fn lambert_w_m1_neg_inv(u: f64) -> f64 {
     w
 }
 
-pub fn triangle(n: u64) -> u64 {
-    n * (n + 1) / 2
+pub fn triangle<I: Unsigned + PrimInt>(n: I) -> I {
+    // n * (n + 1) / 2
+    n.mul(n.add(I::one())).div(I::two())
 }
 
-pub fn inverse_triange(tri: u64) -> u64 {
-    ((8 * tri + 1).integer_sqrt() - 1) / 2
+pub fn inverse_triange<I: Unsigned + PrimInt>(tri: I) -> I {
+    // (isqrt(8 * n + 1) - 1 ) / 2
+    ((I::eight().mul(tri).add(I::one()))
+        .integer_sqrt()
+        .sub(I::one()))
+    .div(I::two())
+}
+
+#[allow(dead_code)]
+pub fn factorial<I: Unsigned + PrimInt>(n: I) -> Option<I> {
+    let mut fact: I = I::one();
+    for i in 2..=n
+        .to_u128()
+        .expect("n is unsigned, and u128 is the biggest primative uint")
+    {
+        fact = fact.checked_mul(&I::from(i).expect("must be less than n, which is I"))?
+    }
+    Some(fact)
+}
+
+pub fn big_factorial(n: BigUint) -> BigUint {
+    let mut fact: BigUint = BigUint::one();
+    let mut i = BigUint::two();
+    loop {
+        if i.cmp(&n) == Ordering::Greater {
+            break;
+        }
+        fact = fact.mul(&i);
+        i = i.add(BigUint::one());
+    }
+
+    fact
 }
 
 #[cfg(test)]
 mod tests {
+    use num_bigint::BigUint;
     use num_traits::Pow;
 
-    use super::fibonacci_iterator;
+    use crate::euler_tools::{big_factorial, factorial};
+
+    use super::{fibonacci_iterator, Fibonacci};
 
     #[test]
     fn test_fib() {
-        let mut it = fibonacci_iterator();
+        let mut it: Fibonacci<u32> = fibonacci_iterator();
         let known_fib_vals = [0, 1, 1, 2, 3, 5, 8, 13, 21];
         for known_fib in known_fib_vals.iter() {
             assert_eq!(Some(known_fib.to_owned()), it.next())
@@ -213,6 +255,66 @@ mod tests {
         for n in 0..=MAX_TRI {
             curr_tri += n;
             assert_eq!(curr_tri, super::triangle(n));
+        }
+    }
+
+    #[test]
+    fn u32_factorials() {
+        let known_factorials: Vec<Option<u32>> = vec![
+            Some(1),           // 0
+            Some(1),           // 1
+            Some(2),           // 2
+            Some(6),           // 3
+            Some(24),          // 4
+            Some(120),         // 5
+            Some(720),         // 6
+            Some(5040),        // 7
+            Some(40_320),      // 8
+            Some(362_880),     // 9
+            Some(3_628_800),   // 10
+            Some(39_916_800),  // 11
+            Some(479_001_600), // 12
+            None,              // 13
+        ];
+        for (i, known_factorial) in known_factorials.iter().enumerate() {
+            let computed_factorial = &factorial(i as u32);
+            assert_eq!(computed_factorial, known_factorial, "factorial #{i}")
+        }
+    }
+    #[test]
+    fn first_22_big_factorials() {
+        let known_factorials: Vec<u128> = vec![
+            1,                             // 0
+            1,                             // 1
+            2,                             // 2
+            6,                             // 3
+            24,                            // 4
+            120,                           // 5
+            720,                           // 6
+            5040,                          // 7
+            40_320,                        // 8
+            362_880,                       // 9
+            3_628_800,                     // 10
+            39_916_800,                    // 11
+            479_001_600,                   // 12
+            6_227_020_800,                 // 13
+            87_178_291_200,                // 14
+            1_307_674_368_000,             // 15
+            20_922_789_888_000,            // 16
+            355_687_428_096_000,           // 17
+            6_402_373_705_728_000,         // 18
+            121_645_100_408_832_000,       // 19
+            2_432_902_008_176_640_000,     // 20
+            51_090_942_171_709_440_000,    // 21
+            1_124_000_727_777_607_680_000, // 22
+        ]; // the on-line encyclopedia of integer sequences ends here
+        for (i, known_factorial) in known_factorials.iter().enumerate() {
+            let computed_factorial = &big_factorial(BigUint::from(i));
+            assert_eq!(
+                *computed_factorial,
+                BigUint::from(*known_factorial),
+                "factorial #{i}"
+            )
         }
     }
 }

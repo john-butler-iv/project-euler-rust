@@ -155,6 +155,6 @@ impl ProblemTimer for ProblemList {
 
 pub fn make_all_problems() -> ProblemList {
     problems001to100::make_range()
-    //.join(problems011to020::make_range())
+    //.join(other_problems::make_range())
     //.expect("problem list could not be joined")
 }

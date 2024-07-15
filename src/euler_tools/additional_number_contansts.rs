@@ -1,7 +1,9 @@
-use num_traits::Unsigned;
+use std::ops::Add;
+
+use num_traits::One;
 
 #[allow(dead_code)]
-pub trait MoreUnsignedConstants {
+pub trait MorePositiveConstants {
     fn two() -> Self;
     fn three() -> Self;
     fn four() -> Self;
@@ -13,7 +15,7 @@ pub trait MoreUnsignedConstants {
     fn ten() -> Self;
 }
 
-impl<U: Unsigned> MoreUnsignedConstants for U {
+impl<U: One + Add<Self, Output = Self>> MorePositiveConstants for U {
     fn two() -> Self {
         Self::one().add(Self::one())
     }

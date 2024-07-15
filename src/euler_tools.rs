@@ -1,32 +1,32 @@
-mod additional_number_contansts;
+pub mod additional_number_contansts;
 pub mod prime_finder;
 
 use std::{
     cmp::Ordering,
-    ops::{Add, Mul},
+    ops::{Add, Div, Mul, Sub},
 };
 
-use additional_number_contansts::MoreUnsignedConstants;
+use additional_number_contansts::MorePositiveConstants;
 use integer_sqrt::IntegerSquareRoot;
 use num_bigint::BigUint;
-use num_traits::{One, PrimInt, Unsigned};
+use num_traits::{CheckedAdd, One, PrimInt, Unsigned, Zero};
 
-pub struct Fibonacci<I: Unsigned + PrimInt> {
+pub struct Fibonacci<I: Clone + Zero + One + CheckedAdd> {
     curr: Option<I>,
     prev: I,
 }
-impl<I: Unsigned + PrimInt> Iterator for Fibonacci<I> {
+impl<I: Clone + Zero + One + CheckedAdd> Iterator for Fibonacci<I> {
     type Item = I;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let orig_curr = self.curr?;
+        let orig_curr = self.curr.clone()?;
         self.curr = orig_curr.checked_add(&self.prev);
-        self.prev = orig_curr;
+        self.prev = orig_curr.clone();
         Some(orig_curr)
     }
 }
 
-pub fn fibonacci_iterator<I: Unsigned + PrimInt>() -> Fibonacci<I> {
+pub fn fibonacci_iterator<I: Clone + Zero + One + CheckedAdd>() -> Fibonacci<I> {
     Fibonacci {
         curr: Some(I::zero()),
         prev: I::one(),
@@ -140,14 +140,29 @@ pub fn lambert_w_m1_neg_inv(u: f64) -> f64 {
     w
 }
 
-pub fn triangle<I: Unsigned + PrimInt>(n: I) -> I {
+pub fn triangle<
+    I: One + MorePositiveConstants + Add<I, Output = I> + Mul + Div<I, Output = I> + Clone,
+>(
+    n: I,
+) -> I {
     // n * (n + 1) / 2
-    n.mul(n.add(I::one())).div(I::two())
+    n.clone().mul(n.clone().add(I::one())).div(I::two())
 }
 
-pub fn inverse_triange<I: Unsigned + PrimInt>(tri: I) -> I {
+pub fn inverse_triange<
+    I: IntegerSquareRoot
+        + MorePositiveConstants
+        + One
+        + Add<I, Output = I>
+        + Mul
+        + Div<I, Output = I>
+        + Sub<I, Output = I>
+        + Clone,
+>(
+    tri: I,
+) -> I {
     // (isqrt(8 * n + 1) - 1 ) / 2
-    ((I::eight().mul(tri).add(I::one()))
+    ((I::eight().mul(tri.clone()).add(I::one()))
         .integer_sqrt()
         .sub(I::one()))
     .div(I::two())

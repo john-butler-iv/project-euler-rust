@@ -210,6 +210,22 @@ impl Primes {
     pub fn sigma(&self, n: &u64) -> u64 {
         self.all_factors(n).iter().sum()
     }
+
+    fn sigma_cmp(&self, n: &u64) -> std::cmp::Ordering {
+        self.sigma(n).cmp(&(2 * n))
+    }
+
+    pub fn is_deficient(&self, n: &u64) -> bool {
+        self.sigma_cmp(n) == std::cmp::Ordering::Less
+    }
+
+    pub fn is_perfect(&self, n: &u64) -> bool {
+        self.sigma_cmp(n) == std::cmp::Ordering::Equal
+    }
+
+    pub fn is_abundant(&self, n: &u64) -> bool {
+        self.sigma_cmp(n) == std::cmp::Ordering::Greater
+    }
 }
 
 #[cfg(test)]
@@ -383,5 +399,39 @@ mod tests {
             bounded_primes,
             vec![&2, &3, &5, &7, &11, &13, &17, &19, &23, &29, &&31, &37, &41, &43, &47,]
         );
+    }
+
+    #[test]
+    fn first_hundred_are_deficient() {
+        let primes = Primes::find_primes(100);
+        let defficient_numbers = [
+            1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 19, 21, 22, 23, 25, 26, 27, 29, 31,
+            32, 33, 34, 35, 37, 38, 39, 41, 43, 44, 45, 46, 47, 49, 50, 51, 52, 53, 55, 57, 58, 59,
+            61, 62, 63, 64, 65, 67, 68, 69, 71, 73, 74, 75, 76, 77, 79, 81, 82, 83, 85, 86, 87, 89,
+            91, 92, 93, 94, 95, 97, 98, 99,
+        ];
+        for n in 1..=100 {
+            assert_eq!(primes.is_deficient(&n), defficient_numbers.contains(&n))
+        }
+    }
+
+    #[test]
+    fn first_hundred_are_perfect() {
+        let primes = Primes::find_primes(100);
+        let perfect_numbers = [6, 28];
+        for n in 1..=100 {
+            assert_eq!(primes.is_perfect(&n), perfect_numbers.contains(&n))
+        }
+    }
+
+    #[test]
+    fn first_hundred_are_abundanat() {
+        let primes = Primes::find_primes(100);
+        let abundant = [
+            12, 18, 20, 24, 30, 36, 40, 42, 48, 54, 56, 60, 66, 70, 72, 78, 80, 84, 88, 90, 96, 100,
+        ];
+        for n in 1..=100 {
+            assert_eq!(primes.is_abundant(&n), abundant.contains(&n))
+        }
     }
 }

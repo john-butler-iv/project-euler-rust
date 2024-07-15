@@ -1,3 +1,4 @@
+use num_format::{Locale, ToFormattedString};
 use project_euler_rust::ProblemTimer;
 
 fn main() {
@@ -12,7 +13,11 @@ fn main() {
         match result.1 {
             Ok((answer, execute_time)) => {
                 println!("\t{answer}");
-                println!("\texecuted in {} milliseconds", execute_time.as_millis());
+                println!(
+                    "\texecuted in {}.{:0>3} milliseconds",
+                    execute_time.as_millis().to_formatted_string(&Locale::en),
+                    execute_time.as_micros() % 1000,
+                );
             }
             Err(err) => {
                 dbg!(err);

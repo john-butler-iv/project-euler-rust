@@ -9,7 +9,33 @@ pub fn make() -> crate::Problem {
     }
 }
 
+fn find_longest_valid_run(
+    permutation: &[u64],
+    fact_table: &[usize],
+    largest_factorial: usize,
+) -> usize {
+    for i in (1..permutation.len()).rev() {
+        if permutation[i - 1] > permutation[i] {
+            return permutation.len() - i;
+        }
+        if fact_table[permutation.len() - i] > largest_factorial {
+            return permutation.len() - i - 1;
+        }
+    }
+    if fact_table[permutation.len() - 1] > largest_factorial {
+        return permutation.len() - 2;
+    }
+    permutation.len() - 1
+}
+
 fn core_solve() -> u64 {
+    // The core principle of this approach is the following fact:
+    // if the permutation ends with an increasing subsequence of length n,
+    // you can swap the (n-1)th and nth and elements from the end to skip forward (n-1)!
+    // The last element counts as the 1st element from the end.
+    // TODO Actually if you reverse the entire sequence, you can skip n!
+    //
+    // Justification:
     // If you notice, when you swap the 2nd to last and 3rd to last values, you're actually
     // skipping an extra value, and if you swap the 3rd and 4th from the end and the last
     // values are sorted, you're skipping 6:
@@ -35,27 +61,27 @@ fn core_solve() -> u64 {
 
     let target_permutation_index = 1_000_000usize;
     let mut permutation = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-    let mut starting_permutation_index = 0;
+    let mut permutation_index = 0;
 
     let fact_table = euler_tools::factorial_table(target_permutation_index);
 
-    for (n, factorial) in fact_table.iter().enumerate().skip(1).rev() {
-        if target_permutation_index - starting_permutation_index > *factorial {
-            let swap_index = permutation.len() - n - 1;
+    while permutation_index <= target_permutation_index {
+        let mut longest_run = find_longest_valid_run(
+            &permutation,
+            &fact_table,
+            target_permutation_index - permutation_index,
+        );
+
+        // if you have a long subsequence, you
+        while longest_run > 1 {
+            let swap_index = permutation.len() - longest_run;
             permutation.swap(swap_index, swap_index + 1);
-            // The list will still be in order, so the same trick works, even though
-            // n will already have been swapped
-            starting_permutation_index += *factorial;
+            permutation_index += fact_table[longest_run - 1];
+            longest_run -= 1;
         }
-    }
 
-    // TODO I know there's got to be some way to apply the same logic again,
-    // but I need to account for the fact that swapping s.0 and s.1 will take less than
-    // (s.len() - 1)! iterations if the sub list to the right is not sorted. In essense,
-    // you could think of it like it's mid way through the swap.
-
-    for _ in starting_permutation_index..(1_000_000 - 1) {
         inplace_permute(&mut permutation);
+        permutation_index += 1;
     }
 
     permutation.iter().fold(0, |acc, &digit| acc * 10 + digit)

@@ -1,4 +1,5 @@
 pub mod additional_number_contansts;
+pub mod collection_tools;
 pub mod prime_finder;
 
 use std::{
@@ -9,7 +10,7 @@ use std::{
 use additional_number_contansts::MorePositiveConstants;
 use integer_sqrt::IntegerSquareRoot;
 use num_bigint::BigUint;
-use num_traits::{CheckedAdd, One, PrimInt, Unsigned, Zero};
+use num_traits::{CheckedAdd, CheckedMul, One, PrimInt, Unsigned, Zero};
 
 pub struct Fibonacci<I: Clone + Zero + One + CheckedAdd> {
     curr: Option<I>,
@@ -180,6 +181,24 @@ pub fn factorial<I: Unsigned + PrimInt>(n: I) -> Option<I> {
     Some(fact)
 }
 
+pub fn factorial_table<I: Unsigned + CheckedMul + Add + One + Ord + Clone>(limit: I) -> Vec<I> {
+    let mut table = Vec::new();
+
+    let mut fact: I = I::one();
+    let mut n = I::zero();
+    while fact.cmp(&limit) == Ordering::Less {
+        table.push(fact.clone());
+
+        n = n.add(I::one());
+        fact = match fact.checked_mul(&n) {
+            None => return table,
+            Some(new_fact) => new_fact,
+        };
+    }
+
+    table
+}
+
 pub fn big_factorial(n: BigUint) -> BigUint {
     let mut fact: BigUint = BigUint::one();
     let mut i = BigUint::two();
@@ -198,8 +217,11 @@ pub fn big_factorial(n: BigUint) -> BigUint {
 mod tests {
     use num_bigint::BigUint;
     use num_traits::Pow;
+    use std::ops::Add;
 
-    use crate::euler_tools::{big_factorial, factorial};
+    use crate::euler_tools::{
+        additional_number_contansts::MorePositiveConstants, big_factorial, factorial,
+    };
 
     use super::{fibonacci_iterator, Fibonacci};
 
@@ -273,32 +295,42 @@ mod tests {
         }
     }
 
+    fn known_u32_factorials() -> Vec<u32> {
+        vec![
+            1,           // 0
+            1,           // 1
+            2,           // 2
+            6,           // 3
+            24,          // 4
+            120,         // 5
+            720,         // 6
+            5040,        // 7
+            40_320,      // 8
+            362_880,     // 9
+            3_628_800,   // 10
+            39_916_800,  // 11
+            479_001_600, // 12
+        ]
+    }
+
     #[test]
     fn u32_factorials() {
-        let known_factorials: Vec<Option<u32>> = vec![
-            Some(1),           // 0
-            Some(1),           // 1
-            Some(2),           // 2
-            Some(6),           // 3
-            Some(24),          // 4
-            Some(120),         // 5
-            Some(720),         // 6
-            Some(5040),        // 7
-            Some(40_320),      // 8
-            Some(362_880),     // 9
-            Some(3_628_800),   // 10
-            Some(39_916_800),  // 11
-            Some(479_001_600), // 12
-            None,              // 13
-        ];
+        let known_factorials: Vec<Option<u32>> =
+            known_u32_factorials().iter().map(|n| Some(*n)).collect();
         for (i, known_factorial) in known_factorials.iter().enumerate() {
             let computed_factorial = &factorial(i as u32);
             assert_eq!(computed_factorial, known_factorial, "factorial #{i}")
         }
     }
+
     #[test]
-    fn first_22_big_factorials() {
-        let known_factorials: Vec<u128> = vec![
+    fn u32_factorial_table() {
+        let known_factorials: Vec<u32> = known_u32_factorials();
+        assert_eq!(known_factorials, super::factorial_table(u32::MAX));
+    }
+
+    fn known_big_factorials() -> Vec<BigUint> {
+        vec![
             1,                             // 0
             1,                             // 1
             2,                             // 2
@@ -322,14 +354,31 @@ mod tests {
             2_432_902_008_176_640_000,     // 20
             51_090_942_171_709_440_000,    // 21
             1_124_000_727_777_607_680_000, // 22
-        ]; // the on-line encyclopedia of integer sequences ends here
+        ] // the on-line encyclopedia of integer sequences ends here
+        .iter()
+        .map(|n: &u128| BigUint::from(*n))
+        .collect()
+    }
+
+    #[test]
+    fn first_22_big_factorials() {
+        let known_factorials = known_big_factorials();
         for (i, known_factorial) in known_factorials.iter().enumerate() {
-            let computed_factorial = &big_factorial(BigUint::from(i));
-            assert_eq!(
-                *computed_factorial,
-                BigUint::from(*known_factorial),
-                "factorial #{i}"
-            )
+            let computed_factorial = big_factorial(BigUint::from(i));
+            assert_eq!(computed_factorial, *known_factorial, "factorial #{i}")
         }
+    }
+
+    #[test]
+    fn first_22_big_factorial_table() {
+        let known_factorials = known_big_factorials();
+        assert_eq!(
+            known_factorials,
+            super::factorial_table(
+                known_factorials[known_factorials.len() - 1]
+                    .clone()
+                    .add(BigUint::two())
+            )
+        )
     }
 }

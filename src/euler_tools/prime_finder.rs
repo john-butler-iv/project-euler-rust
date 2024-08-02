@@ -37,7 +37,8 @@ impl Primes {
         prime_table[0] = false;
         prime_table[1] = false;
 
-        // sqrt x is much less than x/log x ~= number of primes under x
+        // sqrt x is much less than x/log x ~= number of primes under x,
+        // so we won't reserve extra capacity, but it's still better than nothing
         let mut primes: Vec<u32> = Vec::with_capacity(sqrt_limit);
 
         // If a number is not prime, it is guarunteed to have a divisor <= its square root

@@ -37,12 +37,15 @@ impl Primes {
         prime_table[0] = false;
         prime_table[1] = false;
 
-        let mut primes: Vec<u32> = Vec::new();
+        // sqrt x is much less than x/log x ~= number of primes under x
+        let mut primes: Vec<u32> = Vec::with_capacity(sqrt_limit);
 
+        // If a number is not prime, it is guarunteed to have a divisor <= its square root
         for n in 2..=sqrt_limit {
             if !prime_table[n] {
                 continue;
             }
+
             primes.push(Self::number_from_index(n));
 
             for n_multiple in (2 * n..limit).step_by(n) {
@@ -50,15 +53,11 @@ impl Primes {
             }
         }
 
-        for (n, is_prime) in prime_table
-            .iter()
-            .enumerate()
-            .take(limit)
-            // we've already added up to sqrt_limit. Because prime_table is 0-indexed, we need to skip one more
-            .skip(sqrt_limit + 1)
-        {
-            if *is_prime {
-                primes.push(Self::number_from_index(n));
+        let basic_start = sqrt_limit + 1;
+        let next_odd_start = basic_start | 1;
+        for i in (next_odd_start..limit).step_by(2) {
+            if prime_table[i] {
+                primes.push(Self::number_from_index(i));
             }
         }
 

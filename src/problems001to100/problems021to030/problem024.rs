@@ -1,7 +1,3 @@
-use std::mem::swap;
-
-use icu::locid::extensions::other;
-
 // https://projecteuler.net/problem=24
 use crate::euler_tools::{self, collection_tools::inplace_permute};
 

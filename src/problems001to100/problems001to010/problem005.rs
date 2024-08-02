@@ -53,7 +53,7 @@ mod tests {
     }
 
     #[test]
-    fn validation_solution() {
+    fn validate_solution() {
         assert_eq!((super::make().solve)(), 232792560);
     }
 }

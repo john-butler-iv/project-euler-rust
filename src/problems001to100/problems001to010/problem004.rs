@@ -4,7 +4,7 @@ use crate::euler_tools;
 
 pub fn make() -> crate::Problem {
     crate::Problem {
-        title: "Largest Panindrome Product",
+        title: "Largest Palindrome Product",
         number: 4,
         solve: || core_solve(3),
     }

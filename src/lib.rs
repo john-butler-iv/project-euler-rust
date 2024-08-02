@@ -260,7 +260,6 @@ impl ProblemTimer for ProblemList {
     }
 
     fn time_problem(&self, problem_number: u16, iters: u32) -> TimingResult {
-        println!("{problem_number}");
         self.time_problem_with_limits(problem_number, iters, Duration::MAX)
     }
 

@@ -110,6 +110,7 @@ impl ProblemList {
 pub enum TimingError {
     GetProblemError(GetProblemError),
     SystemTimeError(std::time::SystemTimeError),
+    Timeout,
 }
 
 impl From<GetProblemError> for TimingError {
@@ -123,31 +124,153 @@ impl From<std::time::SystemTimeError> for TimingError {
     }
 }
 
-type TimingResult = Result<(u64, Duration), TimingError>;
+pub struct SuccessfulSolve {
+    pub answer: u64,
+    pub execution_time: Duration,
+}
+pub type SolveResult = Result<SuccessfulSolve, TimingError>;
+
+pub struct SuccessfulTiming {
+    pub answer: u64,
+    pub lowest_time: Duration,
+    pub mean_time: Duration,
+    pub actual_iterations: u32,
+    pub longest_time: Duration,
+}
+pub type TimingResult = Result<SuccessfulTiming, TimingError>;
 
 pub trait ProblemTimer {
-    fn time_problem(&self, problem_number: u16) -> TimingResult;
-    fn time_all(&self) -> Vec<Option<(&Problem, TimingResult)>>;
+    fn solve_problem(&self, problem_number: u16) -> SolveResult;
+    fn solve_problem_with_limits(&self, problem_number: u16, max_timeout: Duration) -> SolveResult;
+    fn solve_all(&self) -> Vec<(&Problem, SolveResult)>;
+    fn solve_all_with_limits(&self, max_timeout: Duration) -> Vec<(&Problem, SolveResult)>;
+    fn time_problem(&self, problem_number: u16, iters: u32) -> TimingResult;
+    fn time_problem_with_limits(
+        &self,
+        problem_number: u16,
+        max_iters: u32,
+        max_timeout: Duration,
+    ) -> TimingResult;
+    fn time_all(&self, iters: u32) -> Vec<(&Problem, TimingResult)>;
+    fn time_all_with_limits(
+        &self,
+        max_iters: u32,
+        max_timeout: Duration,
+    ) -> Vec<(&Problem, TimingResult)>;
 }
 
 impl ProblemTimer for ProblemList {
-    fn time_problem(&self, problem_number: u16) -> TimingResult {
+    fn solve_problem(&self, problem_number: u16) -> SolveResult {
         let problem = self.get_problem(problem_number)?;
 
         let start_time = SystemTime::now();
         let answer = (problem.solve)();
 
-        // TODO create a way to timeout - start solving on child thread, sleep on main thread, kill if returned before then?
-
-        Ok((answer, start_time.elapsed()?))
+        Ok(SuccessfulSolve {
+            answer,
+            execution_time: start_time.elapsed()?,
+        })
     }
-    fn time_all(&self) -> Vec<Option<(&Problem, TimingResult)>> {
+    #[allow(unused_variables)]
+    fn solve_problem_with_limits(&self, problem_number: u16, max_timeout: Duration) -> SolveResult {
+        // TODO spawn a child process to execute problem and then kill it if it's taking too long
+        self.solve_problem(problem_number)
+    }
+
+    fn solve_all(&self) -> Vec<(&Problem, SolveResult)> {
         self.problem_range
             .iter()
-            .map(|problem| {
+            .filter_map(|problem| {
                 problem
                     .as_ref()
-                    .map(|problem| (problem, self.time_problem(problem.number)))
+                    .map(|problem| (problem, self.solve_problem(problem.number)))
+            })
+            .collect()
+    }
+
+    fn solve_all_with_limits(&self, max_timeout: Duration) -> Vec<(&Problem, SolveResult)> {
+        self.problem_range
+            .iter()
+            .filter_map(|problem| {
+                problem.as_ref().map(|problem| {
+                    (
+                        problem,
+                        self.solve_problem_with_limits(problem.number, max_timeout),
+                    )
+                })
+            })
+            .collect()
+    }
+
+    fn time_problem_with_limits(
+        &self,
+        problem_number: u16,
+        max_iters: u32,
+        max_timeout: Duration,
+    ) -> TimingResult {
+        let mut total_running_time = Duration::new(0, 0);
+        let mut lowest_time = Duration::MAX;
+        let mut longest_time = Duration::new(0, 0);
+
+        let mut answer = 0u64;
+
+        let mut total_iters = max_iters;
+
+        for iter in 1..=max_iters {
+            if let Ok(solve) =
+                self.solve_problem_with_limits(problem_number, max_timeout - total_running_time)
+            {
+                answer = solve.answer;
+                total_running_time += solve.execution_time;
+                lowest_time = lowest_time.min(solve.execution_time);
+                longest_time = longest_time.max(solve.execution_time);
+
+                if total_running_time > max_timeout {
+                    total_iters = iter;
+                    break;
+                }
+            }
+        }
+
+        Ok(SuccessfulTiming {
+            answer,
+            mean_time: total_running_time / total_iters,
+            actual_iterations: total_iters,
+            lowest_time,
+            longest_time,
+        })
+    }
+
+    fn time_all_with_limits(
+        &self,
+        max_iters: u32,
+        max_timeout: Duration,
+    ) -> Vec<(&Problem, TimingResult)> {
+        self.problem_range
+            .iter()
+            .filter_map(|problem| {
+                problem.as_ref().map(|problem| {
+                    (
+                        problem,
+                        self.time_problem_with_limits(problem.number, max_iters, max_timeout),
+                    )
+                })
+            })
+            .collect()
+    }
+
+    fn time_problem(&self, problem_number: u16, iters: u32) -> TimingResult {
+        println!("{problem_number}");
+        self.time_problem_with_limits(problem_number, iters, Duration::MAX)
+    }
+
+    fn time_all(&self, iters: u32) -> Vec<(&Problem, TimingResult)> {
+        self.problem_range
+            .iter()
+            .filter_map(|problem| {
+                problem
+                    .as_ref()
+                    .map(|problem| (problem, self.time_problem(problem.number, iters)))
             })
             .collect()
     }

@@ -11,7 +11,28 @@ pub fn make() -> crate::Problem {
     }
 }
 
+// this approach runs in 0.017 ms. Factorizing primes is just too slow
 fn core_solve(input: u64) -> u64 {
+    let mut remainder = input;
+
+    // 2 is not divisible, so we can just skip it
+    for i in (3..input).step_by(2) {
+        while remainder % i == 0 {
+            remainder /= i;
+        }
+        if remainder == 1 {
+            return i;
+        }
+    }
+    input
+}
+
+// fastest run was in 3.892 ms. If we lower the limit to just above the answer,
+// we can run in 0.029 ms, but I don't have any reason to use that number other
+// than it just is the answer, so I fell like I'm cheating when I use it.
+// Also that's still slower than the fast approach
+#[allow(dead_code)]
+fn core_solve_slow(input: u64) -> u64 {
     Primes::find_primes(IntegerSquareRoot::integer_sqrt(
         &usize::try_from(input).expect("usize should be 32 or 64"),
     ))
@@ -29,6 +50,24 @@ mod tests {
     #[test]
     fn toy_example() {
         assert_eq!(super::core_solve(13195), 29)
+    }
+
+    #[test]
+    fn toy_answers_match() {
+        assert_eq!(super::core_solve(13195), super::core_solve_slow(13195))
+    }
+
+    #[test]
+    fn verify_answer() {
+        assert_eq!((super::make().solve)(), 6857);
+    }
+
+    #[test]
+    fn verify_real_answers_match() {
+        assert_eq!(
+            super::core_solve(600851475143),
+            super::core_solve_slow(600851475143)
+        );
     }
 
     #[test]

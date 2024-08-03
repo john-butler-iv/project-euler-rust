@@ -226,6 +226,59 @@ impl Primes {
     pub fn is_abundant(&self, n: &u64) -> bool {
         self.sigma_cmp(n) == std::cmp::Ordering::Greater
     }
+
+    pub fn gcd(&self, a: &u64, b: &u64) -> u64 {
+        self.find_gcd_and_reduce(&mut a.to_owned(), &mut b.to_owned())
+    }
+    pub fn gcd_signed(&self, a: &i64, b: &i64) -> u64 {
+        self.find_gcd_and_reduce_signed(&mut a.to_owned(), &mut b.to_owned())
+    }
+
+    pub fn find_gcd_and_reduce(&self, a: &mut u64, b: &mut u64) -> u64 {
+        if *a == 1 || *b == 1 {
+            return 1;
+        }
+        if *a == 0 || *a % *b == 0 {
+            let gcd = *b;
+            *a /= gcd;
+            *b = 1;
+            return gcd;
+        }
+        if *b == 0 || *b % *a == 0 {
+            let gcd = *a;
+            *b /= gcd;
+            *a = 1;
+            return gcd;
+        }
+
+        // TODO I should actually verify that this approach works better finding both factors
+        // and comparing the lists
+        let mut gcd = 1;
+        for a_factor in self.prime_factorize(a) {
+            if *b % a_factor == 0 {
+                *b /= a_factor;
+                gcd *= a_factor;
+            }
+        }
+
+        *a /= gcd;
+
+        gcd
+    }
+
+    pub fn find_gcd_and_reduce_signed(&self, a: &mut i64, b: &mut i64) -> u64 {
+        let a_sign = a.signum() * b.signum();
+
+        let mut unsigned_a = a.unsigned_abs();
+        let mut unsigned_b = b.unsigned_abs();
+
+        let gcd = self.find_gcd_and_reduce(&mut unsigned_a, &mut unsigned_b);
+
+        *a = a_sign * (unsigned_a as i64);
+        *b = unsigned_b as i64;
+
+        gcd
+    }
 }
 
 #[cfg(test)]
@@ -433,5 +486,25 @@ mod tests {
         for n in 1..=100 {
             assert_eq!(primes.is_abundant(&n), abundant.contains(&n))
         }
+    }
+
+    #[test]
+    fn gcd() {
+        let primes = Primes::find_primes(100);
+
+        assert_eq!(primes.gcd(&10, &20), 10);
+        assert_eq!(primes.gcd_signed(&10, &-20), 10);
+
+        let mut a = 10;
+        let mut b = 20;
+        assert_eq!(primes.find_gcd_and_reduce(&mut a, &mut b), 10);
+        assert_eq!(a, 1);
+        assert_eq!(b, 2);
+
+        let mut a = -10;
+        let mut b = 20;
+        assert_eq!(primes.find_gcd_and_reduce_signed(&mut a, &mut b), 10);
+        assert_eq!(a, -1);
+        assert_eq!(b, 2);
     }
 }

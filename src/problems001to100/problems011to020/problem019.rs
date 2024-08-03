@@ -10,7 +10,7 @@ pub fn make() -> crate::Problem {
     }
 }
 
-fn core_solve() -> u64 {
+fn core_solve() -> i64 {
     let mut sunday_firsts = 0;
     for year in 1901..=2000 {
         for month in 1..=12 {

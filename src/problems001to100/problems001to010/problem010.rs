@@ -10,11 +10,11 @@ pub fn make() -> crate::Problem {
     }
 }
 
-fn core_solve(limit: usize) -> u64 {
+fn core_solve(limit: usize) -> i64 {
     prime_finder::Primes::find_primes(limit)
         .prime_iterator()
         // convert to u64 to prevent overflow and allow sum to work
-        .map(|p| *p as u64)
+        .map(|p| *p as i64)
         .sum()
 }
 

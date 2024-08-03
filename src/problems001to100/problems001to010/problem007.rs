@@ -10,7 +10,7 @@ pub fn make() -> crate::Problem {
     }
 }
 
-fn core_solve(prime_index: u32) -> u64 {
+fn core_solve(prime_index: usize) -> i64 {
     // primes under n = pi(n) = ~ n / ln (n), which I will treat as given for this problem.
     // we want the inverse of this, but there's no elementary inverse :(
     // => n = ~ -pi W(-1/pi) where W is the Lambert W function (inverse of xe^x) according to Wolfram Alpha
@@ -36,15 +36,12 @@ fn core_solve(prime_index: u32) -> u64 {
     // so n / ln(n) is an under estimation of pi(n)
     // ALSO NOTE: pi(x) and x / ln (x) are both strictly increasing functions, so when we find the inverse,
     // our approximation is an over estimation of pi(n) if n >= 1250
-    while primes.total_primes() < prime_index as usize {
+    while primes.total_primes() < prime_index {
         approx *= 2;
         primes = Primes::find_primes(approx);
     }
 
-    primes
-        .get_prime((prime_index - 1) as usize)
-        .unwrap_or(&0)
-        .to_owned() as u64
+    primes.get_prime(prime_index - 1).unwrap_or(&0).to_owned() as i64
 }
 
 #[cfg(test)]

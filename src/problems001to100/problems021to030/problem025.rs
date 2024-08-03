@@ -16,19 +16,19 @@ pub fn make() -> crate::Problem {
 
 // This runs in 879 microseconds on my computer in release mode
 #[allow(dead_code)]
-fn core_solve_slow(digits: usize) -> u64 {
+fn core_solve_slow(digits: usize) -> i64 {
     let limit = &BigUint::pow(&BigUint::ten(), digits as u32 - 1);
     println!("{}", limit.to_string().len());
     for (fibb_num, fibb) in fibonacci_iterator::<BigUint>().enumerate() {
         if fibb.cmp(limit) != Ordering::Less {
-            return fibb_num as u64;
+            return fibb_num as i64;
         }
     }
     unreachable!()
 }
 
 // This run in 16 microseconds on my computer in release mode
-fn core_solve_fast(digits: usize) -> u64 {
+fn core_solve_fast(digits: usize) -> i64 {
     let init_digits = 5;
     let mut curr_digits = init_digits;
     let threshold = pow(10, init_digits);

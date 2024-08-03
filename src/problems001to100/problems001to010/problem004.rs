@@ -10,9 +10,9 @@ pub fn make() -> crate::Problem {
     }
 }
 
-fn core_solve(digits: u8) -> u64 {
-    let mut biggest: u64 = 0;
-    let min = 10u64.pow((digits - 1) as u32);
+fn core_solve(digits: u8) -> i64 {
+    let mut biggest = 0i64;
+    let min = 10i64.pow((digits - 1) as u32);
     let max = 10 * min - 1;
 
     let mut min_b = min;

@@ -7,7 +7,7 @@ mod problems001to100;
 pub struct Problem {
     pub title: &'static str,
     pub number: u16,
-    pub solve: fn() -> u64,
+    pub solve: fn() -> i64,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -125,13 +125,13 @@ impl From<std::time::SystemTimeError> for TimingError {
 }
 
 pub struct SuccessfulSolve {
-    pub answer: u64,
+    pub answer: i64,
     pub execution_time: Duration,
 }
 pub type SolveResult = Result<SuccessfulSolve, TimingError>;
 
 pub struct SuccessfulTiming {
-    pub answer: u64,
+    pub answer: i64,
     pub lowest_time: Duration,
     pub mean_time: Duration,
     pub actual_iterations: u32,
@@ -212,7 +212,7 @@ impl ProblemTimer for ProblemList {
         let mut lowest_time = Duration::MAX;
         let mut longest_time = Duration::new(0, 0);
 
-        let mut answer = 0u64;
+        let mut answer = 0i64;
 
         let mut total_iters = max_iters;
 

@@ -8,7 +8,7 @@ pub fn make() -> crate::Problem {
     }
 }
 
-fn core_solve(series_length: u8) -> u64 {
+fn core_solve(series_length: u8) -> i64 {
     const DIGITS: &[u8] = "\
     73167176531330624919225119674426574742355349194934\
     96983520312774506326239578318016984801869478851843\
@@ -38,11 +38,11 @@ fn core_solve(series_length: u8) -> u64 {
         .skip(series_length as usize - 1)
         .map(|(i, _)| {
             (0..series_length as usize)
-                .map(|j| (DIGITS[i - j] - b'0') as u64)
+                .map(|j| (DIGITS[i - j] - b'0') as i64)
                 .product()
         })
         .max()
-        .unwrap_or(0u64)
+        .unwrap_or(0i64)
 }
 
 #[cfg(test)]

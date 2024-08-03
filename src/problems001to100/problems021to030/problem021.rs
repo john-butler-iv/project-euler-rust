@@ -10,7 +10,7 @@ pub fn make() -> crate::Problem {
     }
 }
 
-fn core_solve(amicables_under: u64) -> u64 {
+fn core_solve(amicables_under: u64) -> i64 {
     let mut amicable_sum = 0;
     let pf = Primes::find_primes(amicables_under as usize);
 
@@ -23,7 +23,7 @@ fn core_solve(amicables_under: u64) -> u64 {
 
         let sig_j = pf.sigma(&j);
         if sig_j == sig_i {
-            amicable_sum += i;
+            amicable_sum += i as i64;
         }
     }
 

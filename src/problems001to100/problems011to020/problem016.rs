@@ -10,7 +10,7 @@ pub fn make() -> crate::Problem {
     }
 }
 
-fn core_solve(exponent: u32) -> u64 {
+fn core_solve(exponent: u32) -> i64 {
     let large_number = BigUint::from(2usize);
 
     large_number
@@ -18,7 +18,7 @@ fn core_solve(exponent: u32) -> u64 {
         .to_str_radix(10)
         .as_bytes()
         .iter()
-        .fold(0, |total, digit| total + (digit - b'0') as u64)
+        .fold(0, |total, digit| total + (digit - b'0') as i64)
 }
 
 #[cfg(test)]

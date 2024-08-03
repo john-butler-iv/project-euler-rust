@@ -8,19 +8,17 @@ pub fn make() -> crate::Problem {
     }
 }
 
-fn core_solve(limit: u32) -> u64 {
-    u64::from(
-        crate::euler_tools::BoundedIterator::new(
-            limit,
-            crate::euler_tools::fibonacci_iterator::<u32>()
-                // our fibonacci iterator generates 0, 1, 1, 2, 3, ...
-                // but this problem expects 1, 2, 3, 5, ...
-                // We need to skip the first two values
-                .skip(2)
-                .filter(|fib| fib % 2 == 0),
-        )
-        .sum::<u32>(),
+fn core_solve(limit: i64) -> i64 {
+    crate::euler_tools::BoundedIterator::new(
+        limit,
+        crate::euler_tools::fibonacci_iterator()
+            // our fibonacci iterator generates 0, 1, 1, 2, 3, ...
+            // but this problem expects 1, 2, 3, 5, ...
+            // We need to skip the first two values
+            .skip(2)
+            .filter(|fib| fib % 2 == 0),
     )
+    .sum::<i64>()
 }
 
 #[cfg(test)]

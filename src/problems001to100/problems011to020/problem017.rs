@@ -8,7 +8,7 @@ pub fn make() -> crate::Problem {
     }
 }
 
-fn core_solve(max_num: u16) -> u64 {
+fn core_solve(max_num: u16) -> i64 {
     let mut total_letters = 0;
     for number in 1..=max_num {
         total_letters += numbers_to_letters(number);
@@ -17,7 +17,7 @@ fn core_solve(max_num: u16) -> u64 {
     total_letters
 }
 
-pub fn numbers_to_letters(number: u16) -> u64 {
+pub fn numbers_to_letters(number: u16) -> i64 {
     if number == 0 {
         0 // if number == 0, it's because it's the remainder of a larger number, so don't count. I.e., twenty, not twenty-zero
     } else if number < 10 {

@@ -10,7 +10,7 @@ pub fn make() -> crate::Problem {
     }
 }
 
-fn core_solve() -> u64 {
+fn core_solve() -> i64 {
     todo!()
 }
 

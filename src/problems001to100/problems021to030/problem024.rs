@@ -10,7 +10,7 @@ pub fn make() -> crate::Problem {
 }
 
 fn find_longest_valid_run(
-    permutation: &[u64],
+    permutation: &[i64],
     fact_table: &[usize],
     largest_factorial: usize,
 ) -> usize {
@@ -28,7 +28,7 @@ fn find_longest_valid_run(
     permutation.len() - 1
 }
 
-fn core_solve(digits: usize, target_permutation_index: usize) -> u64 {
+fn core_solve(digits: usize, target_permutation_index: usize) -> i64 {
     // The core principle of this approach is the following fact:
     // if the permutation ends with an increasing subsequence of length n,
     // if you reverse the subsequence, you can skip n! permutations
@@ -64,7 +64,7 @@ fn core_solve(digits: usize, target_permutation_index: usize) -> u64 {
     // Y Z W X - position 23
     // Z Y X W - position 24 = 4! (reversed last 4 elements)
 
-    let mut permutation: Vec<u64> = (0..digits as u64).collect();
+    let mut permutation: Vec<i64> = (0..digits as i64).collect();
     let mut permutation_index = 1;
 
     let fact_table = euler_tools::factorial_table(target_permutation_index);

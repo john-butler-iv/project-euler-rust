@@ -22,9 +22,9 @@ pub fn make() -> crate::Problem {
     }
 }
 
-fn core_solve(triangle: Vec<u64>) -> u64 {
-    let size = euler_tools::inverse_triange(triangle.len() as u64) as usize;
-    assert_eq!(triangle.len() as u64, euler_tools::triangle(size as u64));
+fn core_solve(triangle: Vec<i64>) -> i64 {
+    let size = euler_tools::inverse_triange(triangle.len());
+    assert_eq!(triangle.len(), euler_tools::triangle(size));
 
     let mut cache = vec![0; triangle.len()];
 
@@ -32,7 +32,7 @@ fn core_solve(triangle: Vec<u64>) -> u64 {
     cache[triangle.len() - size..].clone_from_slice(&triangle[triangle.len() - size..]);
 
     for row_index in (0..size - 1).rev() {
-        let first_row_index = euler_tools::triangle(row_index as u64) as usize;
+        let first_row_index = euler_tools::triangle(row_index);
         for pos_index in first_row_index..=first_row_index + row_index {
             cache[pos_index] = triangle[pos_index]
                 + max(

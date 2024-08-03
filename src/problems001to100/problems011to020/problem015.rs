@@ -9,9 +9,9 @@ pub fn make() -> crate::Problem {
 }
 
 #[allow(clippy::needless_range_loop)]
-fn core_solve(grid_size: usize) -> u64 {
+fn core_solve(grid_size: usize) -> i64 {
     let grid_points = grid_size + 1;
-    let mut cache: Vec<u64> = vec![0u64; grid_points * grid_points];
+    let mut cache: Vec<i64> = vec![0; grid_points * grid_points];
 
     // setup boundary conidtions
     // bottom of grid

@@ -10,7 +10,7 @@ pub fn make() -> crate::Problem {
     }
 }
 
-fn core_solve(max_denom: usize) -> u64 {
+fn core_solve(max_denom: usize) -> i64 {
     let mut longest_length = 1;
     let mut longest_denom = 1;
 
@@ -47,7 +47,7 @@ fn core_solve(max_denom: usize) -> u64 {
         }
     }
 
-    longest_denom as u64
+    longest_denom as i64
 }
 
 #[cfg(test)]

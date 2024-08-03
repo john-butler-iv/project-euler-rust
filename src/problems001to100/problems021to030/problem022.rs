@@ -33,7 +33,7 @@ fn read_names(path: &str) -> Vec<String> {
         .collect()
 }
 
-fn core_solve(names: &mut [String]) -> u64 {
+fn core_solve(names: &mut [String]) -> i64 {
     names.sort();
 
     names
@@ -42,8 +42,8 @@ fn core_solve(names: &mut [String]) -> u64 {
         .map(|(index, name)| {
             name.as_bytes()
                 .iter()
-                .map(|letter| (letter - b'A' + 1) as u64 * (index + 1) as u64)
-                .sum::<u64>()
+                .map(|letter| (letter - b'A' + 1) as i64 * (index + 1) as i64)
+                .sum::<i64>()
         })
         .sum()
 }

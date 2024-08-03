@@ -8,7 +8,7 @@ pub fn make() -> crate::Problem {
     }
 }
 
-fn core_solve(limit: u64) -> u64 {
+fn core_solve(limit: i64) -> i64 {
     // sum (1 + 2 + 3 + ...) = n (n + 1) / 2
     // sum (1 + 2 + 3 + ...) = ( n(n+1)/2 ) ^ 2
 

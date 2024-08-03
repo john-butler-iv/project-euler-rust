@@ -8,7 +8,7 @@ pub fn make() -> crate::Problem {
     }
 }
 
-fn core_solve(limit: usize) -> u64 {
+fn core_solve(limit: usize) -> i64 {
     const CACHE_SIZE: usize = 1_000_000;
     let mut cache: Vec<Option<u64>> = vec![None; CACHE_SIZE];
     //let mut cache: [Option<u64>; CACHE_SIZE] = [None; CACHE_SIZE];
@@ -17,7 +17,7 @@ fn core_solve(limit: usize) -> u64 {
 
     let mut longest_run = 1;
     let mut longest_start = 1;
-    for n in 2..(limit as u64) {
+    for n in 2..limit as i64 {
         let current_length = find_collatz_length(&mut cache, n);
         if current_length > longest_run {
             longest_run = current_length;
@@ -28,8 +28,8 @@ fn core_solve(limit: usize) -> u64 {
     longest_start
 }
 
-fn find_collatz_length(cache: &mut [Option<u64>], n: u64) -> u64 {
-    if n >= cache.len() as u64 {
+fn find_collatz_length(cache: &mut [Option<u64>], n: i64) -> u64 {
+    if n >= cache.len() as i64 {
         return find_collatz_length(cache, next_collatz(n)) + 1;
     }
     match cache[n as usize] {
@@ -41,7 +41,7 @@ fn find_collatz_length(cache: &mut [Option<u64>], n: u64) -> u64 {
     }
 }
 
-fn next_collatz(n: u64) -> u64 {
+fn next_collatz(n: i64) -> i64 {
     if n % 2 == 0 {
         n / 2
     } else {

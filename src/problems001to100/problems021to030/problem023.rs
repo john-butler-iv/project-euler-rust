@@ -16,13 +16,13 @@ const MAX_NON_ABUNDANT_SUM: u32 = 20161; // 28123 is the given value, but 20161 
 
 // this approach runs in 34 ms on my machine with the release flag set.
 #[allow(dead_code)]
-fn core_solve_slow() -> u64 {
+fn core_solve_slow() -> i64 {
     let primes = Primes::find_primes((MAX_NON_ABUNDANT_SUM - 12) as usize);
     let abundant_numbers: Vec<u32> = (12..MAX_NON_ABUNDANT_SUM)
         .filter(|n| primes.is_abundant(&(*n as u64)))
         .collect();
 
-    let mut sum = triangle(MAX_NON_ABUNDANT_SUM as u64);
+    let mut sum = triangle(MAX_NON_ABUNDANT_SUM as i64);
     let mut upper_index_bound = 3;
     for n in 24..=MAX_NON_ABUNDANT_SUM {
         if upper_index_bound < abundant_numbers.len() - 1 && abundant_numbers[upper_index_bound] < n
@@ -36,7 +36,7 @@ fn core_solve_slow() -> u64 {
                 Ordering::Less => higher_index -= 1,
                 Ordering::Greater => lower_index += 1,
                 Ordering::Equal => {
-                    sum -= n as u64;
+                    sum -= n as i64;
                     break;
                 }
             }
@@ -47,20 +47,20 @@ fn core_solve_slow() -> u64 {
 }
 
 // this approach runs in 22 ms on my machine with the release flag set.
-fn core_solve_fast() -> u64 {
+fn core_solve_fast() -> i64 {
     let primes = Primes::find_primes((MAX_NON_ABUNDANT_SUM - 12) as usize);
     let abundant_nums: Vec<u32> = (12..MAX_NON_ABUNDANT_SUM)
         .filter(|n| primes.is_abundant(&(*n as u64)))
         .collect();
 
     let mut can_be_expressed = vec![false; MAX_NON_ABUNDANT_SUM as usize + 1];
-    let mut sum = euler_tools::triangle(MAX_NON_ABUNDANT_SUM) as u64;
+    let mut sum = euler_tools::triangle(MAX_NON_ABUNDANT_SUM) as i64;
     for (index, abundant_num1) in abundant_nums.iter().enumerate() {
         for abundant_num2 in abundant_nums[index..].iter() {
             if abundant_num1 + abundant_num2 <= MAX_NON_ABUNDANT_SUM
                 && !can_be_expressed[(abundant_num1 + abundant_num2) as usize]
             {
-                sum -= (abundant_num1 + abundant_num2) as u64;
+                sum -= (abundant_num1 + abundant_num2) as i64;
                 can_be_expressed[(abundant_num1 + abundant_num2) as usize] = true;
             }
         }

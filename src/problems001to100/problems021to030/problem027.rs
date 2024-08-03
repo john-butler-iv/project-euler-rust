@@ -10,7 +10,7 @@ pub fn make() -> crate::Problem {
     }
 }
 
-fn core_solve(_: usize) -> u64 {
+fn core_solve(_: usize) -> i64 {
     todo!()
 }
 

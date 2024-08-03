@@ -12,12 +12,12 @@ pub fn make() -> crate::Problem {
     }
 }
 
-fn core_solve(digits: u8) -> u64 {
+fn core_solve(digits: u8) -> i64 {
     euler_tools::big_factorial(BigUint::from(digits))
         .to_string()
         .as_bytes()
         .iter()
-        .map(|n| u64::from(n - b'0'))
+        .map(|n| i64::from(n - b'0'))
         .sum()
 }
 

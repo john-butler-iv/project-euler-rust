@@ -12,7 +12,7 @@ pub fn make() -> crate::Problem {
 }
 
 // this approach runs in 0.017 ms. Factorizing primes is just too slow
-fn core_solve(input: u64) -> u64 {
+fn core_solve(input: i64) -> i64 {
     let mut remainder = input;
 
     // 2 is not divisible, so we can just skip it
@@ -32,7 +32,7 @@ fn core_solve(input: u64) -> u64 {
 // than it just is the answer, so I fell like I'm cheating when I use it.
 // Also that's still slower than the fast approach
 #[allow(dead_code)]
-fn core_solve_slow(input: u64) -> u64 {
+fn core_solve_slow(input: u64) -> i64 {
     Primes::find_primes(IntegerSquareRoot::integer_sqrt(
         &usize::try_from(input).expect("usize should be 32 or 64"),
     ))
@@ -40,7 +40,7 @@ fn core_solve_slow(input: u64) -> u64 {
     .iter()
     .last()
     .unwrap_or(&input)
-    .to_owned()
+    .to_owned() as i64
 }
 
 #[cfg(test)]

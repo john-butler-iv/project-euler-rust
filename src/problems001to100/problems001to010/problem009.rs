@@ -8,7 +8,7 @@ pub fn make() -> crate::Problem {
     }
 }
 
-fn core_solve() -> u64 {
+fn core_solve() -> i64 {
     for a in 1..=998 {
         for b in 1..=(999 - a) {
             if 1000 * (a + b) - a * b == 500000 {

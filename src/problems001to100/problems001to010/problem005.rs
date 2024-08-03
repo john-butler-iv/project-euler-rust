@@ -10,7 +10,7 @@ pub fn make() -> crate::Problem {
     }
 }
 
-fn core_solve(limit: usize) -> u64 {
+fn core_solve(limit: usize) -> i64 {
     let primes = Primes::find_primes(limit + 1);
 
     let mut total_factor_multiplicity: Vec<u32> = vec![0; limit + 1];
@@ -40,7 +40,7 @@ fn core_solve(limit: usize) -> u64 {
     {
         least_common_multiple *= p.pow(multiplicity.to_owned());
     }
-    u64::try_from(least_common_multiple).expect(
+    i64::try_from(least_common_multiple).expect(
         "if running on inputs where this is an issue, we probably won't even get to this point",
     )
 }

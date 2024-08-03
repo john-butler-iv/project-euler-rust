@@ -10,7 +10,7 @@ pub fn make() -> crate::Problem {
     }
 }
 
-fn core_solve() -> u64 {
+fn core_solve() -> i64 {
     let nums = vec![
         BigUint::parse_bytes(b"37107287533902102798797998220837590246510135740250", 10)
             .expect("hard-coded"),
@@ -220,8 +220,8 @@ fn core_solve() -> u64 {
         .as_bytes() // it's a base-ten number, so we know it's ASCII
         .iter()
         // convert string digits to u64
-        .fold(0u64, |all_digits, digit| {
-            all_digits * 10 + (digit - b'0') as u64
+        .fold(0i64, |all_digits, digit| {
+            all_digits * 10 + (digit - b'0') as i64
         })
 }
 

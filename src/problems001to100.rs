@@ -1,6 +1,7 @@
 mod problems001to010;
 mod problems011to020;
 mod problems021to030;
+mod problems031to040;
 
 pub fn make_range() -> crate::ProblemList {
     // FromResidual is a nightly feature.
@@ -8,5 +9,7 @@ pub fn make_range() -> crate::ProblemList {
         .join(problems011to020::make_range())
         .expect("child lists have non-overlapping problem numbers")
         .join(problems021to030::make_range())
+        .expect("child lists have non-overlapping problem numbers")
+        .join(problems031to040::make_range())
         .expect("child lists have non-overlapping problem numbers")
 }

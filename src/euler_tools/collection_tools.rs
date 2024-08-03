@@ -1,5 +1,20 @@
 use std::cmp::Ordering;
 
+pub trait CheckedGet<T> {
+    fn checked_get<I: TryInto<usize>>(&self, index: I) -> Option<&T>;
+}
+
+impl<T> CheckedGet<T> for [T] {
+    fn checked_get<I: TryInto<usize>>(&self, index: I) -> Option<&T> {
+        let index: usize = index.try_into().ok()?;
+        if index < self.len() {
+            Some(&self[index])
+        } else {
+            None
+        }
+    }
+}
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum PermutationStatus {
     PermutationsRemaining,

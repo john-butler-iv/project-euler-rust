@@ -1,11 +1,11 @@
 // https://projecteuler.net/problem=5
 
-use crate::euler_tools::{self, Primes};
+use crate::euler_tools::{self, prime_finder::Primes};
 
 pub fn make() -> crate::Problem {
     crate::Problem {
         title: "template",
-        number: 50,
+        number: 5,
         solve: || core_solve(),
     }
 }

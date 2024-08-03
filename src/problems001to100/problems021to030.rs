@@ -6,8 +6,8 @@ mod problem025;
 mod problem026;
 mod problem027;
 mod problem028;
-//mod problem029;
-//mod problem030;
+mod problem029;
+mod problem030;
 
 pub fn make_range() -> crate::ProblemList {
     crate::ProblemList {
@@ -25,7 +25,7 @@ fn make_problem_list() -> Vec<Option<crate::Problem>> {
         Some(problem026::make()),
         Some(problem027::make()),
         Some(problem028::make()),
-        None, // Some(problem029::make()),
-        None, // Some(problem030::make()),
+        Some(problem029::make()),
+        Some(problem030::make()),
     ]
 }

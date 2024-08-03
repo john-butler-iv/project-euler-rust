@@ -142,8 +142,11 @@ pub type TimingResult = Result<SuccessfulTiming, TimingError>;
 pub trait ProblemTimer {
     fn solve_problem(&self, problem_number: u16) -> SolveResult;
     fn solve_problem_with_limits(&self, problem_number: u16, max_timeout: Duration) -> SolveResult;
-    fn solve_all(&self) -> Vec<(&Problem, SolveResult)>;
-    fn solve_all_with_limits(&self, max_timeout: Duration) -> Vec<(&Problem, SolveResult)>;
+    fn solve_all(&self) -> impl Iterator<Item = (&Problem, SolveResult)>;
+    fn solve_all_with_limits(
+        &self,
+        max_timeout: Duration,
+    ) -> impl Iterator<Item = (&Problem, SolveResult)>;
     fn time_problem(&self, problem_number: u16, iters: u32) -> TimingResult;
     fn time_problem_with_limits(
         &self,
@@ -151,12 +154,12 @@ pub trait ProblemTimer {
         max_iters: u32,
         max_timeout: Duration,
     ) -> TimingResult;
-    fn time_all(&self, iters: u32) -> Vec<(&Problem, TimingResult)>;
+    fn time_all(&self, iters: u32) -> impl Iterator<Item = (&Problem, TimingResult)>;
     fn time_all_with_limits(
         &self,
         max_iters: u32,
         max_timeout: Duration,
-    ) -> Vec<(&Problem, TimingResult)>;
+    ) -> impl Iterator<Item = (&Problem, TimingResult)>;
 }
 
 impl ProblemTimer for ProblemList {
@@ -177,29 +180,26 @@ impl ProblemTimer for ProblemList {
         self.solve_problem(problem_number)
     }
 
-    fn solve_all(&self) -> Vec<(&Problem, SolveResult)> {
-        self.problem_range
-            .iter()
-            .filter_map(|problem| {
-                problem
-                    .as_ref()
-                    .map(|problem| (problem, self.solve_problem(problem.number)))
-            })
-            .collect()
+    fn solve_all(&self) -> impl Iterator<Item = (&Problem, SolveResult)> {
+        self.problem_range.iter().filter_map(|problem| {
+            problem
+                .as_ref()
+                .map(|problem| (problem, self.solve_problem(problem.number)))
+        })
     }
 
-    fn solve_all_with_limits(&self, max_timeout: Duration) -> Vec<(&Problem, SolveResult)> {
-        self.problem_range
-            .iter()
-            .filter_map(|problem| {
-                problem.as_ref().map(|problem| {
-                    (
-                        problem,
-                        self.solve_problem_with_limits(problem.number, max_timeout),
-                    )
-                })
+    fn solve_all_with_limits(
+        &self,
+        max_timeout: Duration,
+    ) -> impl Iterator<Item = (&Problem, SolveResult)> {
+        self.problem_range.iter().filter_map(move |problem| {
+            problem.as_ref().map(|problem| {
+                (
+                    problem,
+                    self.solve_problem_with_limits(problem.number, max_timeout),
+                )
             })
-            .collect()
+        })
     }
 
     fn time_problem_with_limits(
@@ -245,33 +245,27 @@ impl ProblemTimer for ProblemList {
         &self,
         max_iters: u32,
         max_timeout: Duration,
-    ) -> Vec<(&Problem, TimingResult)> {
-        self.problem_range
-            .iter()
-            .filter_map(|problem| {
-                problem.as_ref().map(|problem| {
-                    (
-                        problem,
-                        self.time_problem_with_limits(problem.number, max_iters, max_timeout),
-                    )
-                })
+    ) -> impl Iterator<Item = (&Problem, TimingResult)> {
+        self.problem_range.iter().filter_map(move |problem| {
+            problem.as_ref().map(|problem| {
+                (
+                    problem,
+                    self.time_problem_with_limits(problem.number, max_iters, max_timeout),
+                )
             })
-            .collect()
+        })
     }
 
     fn time_problem(&self, problem_number: u16, iters: u32) -> TimingResult {
         self.time_problem_with_limits(problem_number, iters, Duration::MAX)
     }
 
-    fn time_all(&self, iters: u32) -> Vec<(&Problem, TimingResult)> {
-        self.problem_range
-            .iter()
-            .filter_map(|problem| {
-                problem
-                    .as_ref()
-                    .map(|problem| (problem, self.time_problem(problem.number, iters)))
-            })
-            .collect()
+    fn time_all(&self, iters: u32) -> impl Iterator<Item = (&Problem, TimingResult)> {
+        self.problem_range.iter().filter_map(move |problem| {
+            problem
+                .as_ref()
+                .map(|problem| (problem, self.time_problem(problem.number, iters)))
+        })
     }
 }
 

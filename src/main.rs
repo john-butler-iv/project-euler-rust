@@ -95,11 +95,17 @@ fn main() {
         }
     };
 
+    const PROBLEM_DELIM: &str = "==================================================";
+    println!("{PROBLEM_DELIM}");
+
     let max_iters = 500;
     match action {
         Action::Time => {
-            let problem_vec: Vec<(&Problem, TimingResult)> = match amount {
-                Amount::All => all_problems.time_all(max_iters),
+            let report =
+                |result: (&Problem, TimingResult)| timer_reporter(result, max_iters, PROBLEM_DELIM);
+
+            match amount {
+                Amount::All => all_problems.time_all(max_iters).for_each(report),
                 Amount::Some(problem_numbers) => problem_numbers
                     .iter()
                     .map(|problem_number| {
@@ -110,53 +116,14 @@ fn main() {
                             all_problems.time_problem(*problem_number, max_iters),
                         )
                     })
-                    .collect(),
+                    .for_each(report),
             };
-
-            const PROBLEM_DELIM: &str = "==================================================";
-            println!("{PROBLEM_DELIM}");
-            for result in problem_vec.into_iter() {
-                println!("Problem {:0>3} {}", result.0.number, result.0.title,);
-
-                match result.1 {
-                    Ok(timing) => {
-                        println!("\t{}", timing.answer);
-                        print!(
-                            "\taverage execution time: {}.{:0>3} milliseconds",
-                            timing
-                                .mean_time
-                                .as_millis()
-                                .to_formatted_string(&Locale::en),
-                            timing.mean_time.as_micros() % 1000,
-                        );
-                        if timing.actual_iterations != max_iters {
-                            print!(". only {} / {} trials", timing.actual_iterations, max_iters);
-                        }
-                        println!();
-                        println!(
-                            "\trange: {}.{:0>3} ms - {}.{:0>3} ms",
-                            timing
-                                .lowest_time
-                                .as_millis()
-                                .to_formatted_string(&Locale::en),
-                            timing.lowest_time.as_micros() % 1000,
-                            timing
-                                .longest_time
-                                .as_millis()
-                                .to_formatted_string(&Locale::en),
-                            timing.longest_time.as_micros() % 1000,
-                        );
-                    }
-                    Err(err) => {
-                        dbg!(err);
-                    }
-                }
-                println!("{PROBLEM_DELIM}");
-            }
         }
         Action::Solve => {
-            let problem_vec: Vec<(&Problem, SolveResult)> = match amount {
-                Amount::All => all_problems.solve_all(),
+            let report = |result: (&Problem, SolveResult)| solve_reporter(result, PROBLEM_DELIM);
+
+            match amount {
+                Amount::All => all_problems.solve_all().for_each(report),
                 Amount::Some(problem_numbers) => problem_numbers
                     .iter()
                     .map(|problem_number| {
@@ -167,32 +134,78 @@ fn main() {
                             all_problems.solve_problem(*problem_number),
                         )
                     })
-                    .collect(),
+                    .for_each(report),
             };
-
-            const PROBLEM_DELIM: &str = "==================================================";
-            println!("{PROBLEM_DELIM}");
-            for result in problem_vec.into_iter() {
-                println!("Problem {:0>3} {}", result.0.number, result.0.title,);
-
-                match result.1 {
-                    Ok(solve) => {
-                        println!("\t{}", solve.answer);
-                        println!(
-                            "\texecuted in {}.{:0>3} milliseconds",
-                            solve
-                                .execution_time
-                                .as_millis()
-                                .to_formatted_string(&Locale::en),
-                            solve.execution_time.as_micros() % 1000,
-                        );
-                    }
-                    Err(err) => {
-                        dbg!(err);
-                    }
-                }
-                println!("{PROBLEM_DELIM}");
-            }
         }
     }
+}
+
+fn solve_reporter(solve_result: (&Problem, SolveResult), problem_delim: &str) {
+    println!(
+        "Problem {:0>3} {}",
+        solve_result.0.number, solve_result.0.title,
+    );
+
+    match solve_result.1 {
+        Ok(solve) => {
+            println!("\t{}", solve.answer);
+            println!(
+                "\texecuted in {}.{:0>3} milliseconds",
+                solve
+                    .execution_time
+                    .as_millis()
+                    .to_formatted_string(&Locale::en),
+                solve.execution_time.as_micros() % 1000,
+            );
+        }
+        Err(err) => {
+            dbg!(err);
+        }
+    }
+    println!("{problem_delim}");
+}
+
+fn timer_reporter(time_result: (&Problem, TimingResult), expected_iters: u32, problem_delim: &str) {
+    println!(
+        "Problem {:0>3} {}",
+        time_result.0.number, time_result.0.title,
+    );
+
+    match time_result.1 {
+        Ok(timing) => {
+            println!("\t{}", timing.answer);
+            print!(
+                "\taverage execution time: {}.{:0>3} milliseconds",
+                timing
+                    .mean_time
+                    .as_millis()
+                    .to_formatted_string(&Locale::en),
+                timing.mean_time.as_micros() % 1000,
+            );
+            if timing.actual_iterations != expected_iters {
+                print!(
+                    ". only {} / {} trials",
+                    timing.actual_iterations, expected_iters
+                );
+            }
+            println!();
+            println!(
+                "\trange: {}.{:0>3} ms - {}.{:0>3} ms",
+                timing
+                    .lowest_time
+                    .as_millis()
+                    .to_formatted_string(&Locale::en),
+                timing.lowest_time.as_micros() % 1000,
+                timing
+                    .longest_time
+                    .as_millis()
+                    .to_formatted_string(&Locale::en),
+                timing.longest_time.as_micros() % 1000,
+            );
+        }
+        Err(err) => {
+            dbg!(err);
+        }
+    }
+    println!("{problem_delim}");
 }

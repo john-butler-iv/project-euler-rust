@@ -67,7 +67,7 @@ fn core_solve(digits: usize, target_permutation_index: usize) -> i64 {
     let mut permutation: Vec<i64> = (0..digits as i64).collect();
     let mut permutation_index = 1;
 
-    let fact_table = euler_tools::factorial_table(target_permutation_index);
+    let fact_table = euler_tools::bounded_factorial_table(target_permutation_index);
 
     while permutation_index < target_permutation_index - 1 {
         let longest_run = find_longest_valid_run(

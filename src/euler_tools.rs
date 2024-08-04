@@ -10,7 +10,7 @@ use std::{
 use additional_number_contansts::MorePositiveConstants;
 use integer_sqrt::IntegerSquareRoot;
 use num_bigint::BigUint;
-use num_traits::{CheckedAdd, CheckedMul, One, PrimInt, Unsigned, Zero};
+use num_traits::{CheckedAdd, CheckedMul, Num, One, PrimInt, Zero};
 
 pub struct Fibonacci<I: Clone + Zero + One + CheckedAdd> {
     curr: Option<I>,
@@ -170,7 +170,7 @@ pub fn inverse_triange<
 }
 
 #[allow(dead_code)]
-pub fn factorial<I: Unsigned + PrimInt>(n: I) -> Option<I> {
+pub fn factorial<I: PrimInt>(n: I) -> Option<I> {
     let mut fact: I = I::one();
     for i in 2..=n
         .to_u128()
@@ -181,7 +181,27 @@ pub fn factorial<I: Unsigned + PrimInt>(n: I) -> Option<I> {
     Some(fact)
 }
 
-pub fn factorial_table<I: Unsigned + CheckedMul + Add + One + Ord + Clone>(limit: I) -> Vec<I> {
+pub fn sized_factorial_table<I: Num + CheckedMul + One + TryFrom<usize>>(size: usize) -> Vec<I> where
+{
+    let mut table = Vec::with_capacity(size);
+    table.push(I::one());
+
+    for n in 1..size {
+        if let Ok(i) = I::try_from(n) {
+            if let Some(factorial) = table[n - 1].checked_mul(&i) {
+                table.push(factorial);
+            } else {
+                panic!("largest factorial could not fit in type");
+            }
+        } else {
+            panic!("largest factorial could not fit in type");
+        }
+    }
+
+    table
+}
+
+pub fn bounded_factorial_table<I: Num + CheckedMul + Add + One + Ord + Clone>(limit: I) -> Vec<I> {
     let mut table = Vec::new();
 
     let mut fact: I = I::one();
@@ -326,7 +346,7 @@ mod tests {
     #[test]
     fn u32_factorial_table() {
         let known_factorials: Vec<u32> = known_u32_factorials();
-        assert_eq!(known_factorials, super::factorial_table(u32::MAX));
+        assert_eq!(known_factorials, super::bounded_factorial_table(u32::MAX));
     }
 
     fn known_big_factorials() -> Vec<BigUint> {
@@ -374,7 +394,7 @@ mod tests {
         let known_factorials = known_big_factorials();
         assert_eq!(
             known_factorials,
-            super::factorial_table(
+            super::bounded_factorial_table(
                 known_factorials[known_factorials.len() - 1]
                     .clone()
                     .add(BigUint::two())

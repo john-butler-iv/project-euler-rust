@@ -11,7 +11,7 @@ pub fn make() -> crate::Problem {
 }
 
 fn core_solve() -> i64 {
-    todo!()
+    0i64
 }
 
 #[cfg(test)]

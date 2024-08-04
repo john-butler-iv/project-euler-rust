@@ -1,4 +1,4 @@
-use std::ops::{Add, Div, Mul, Neg, Sub};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 use num_traits::{Inv, One, PrimInt, Signed, Unsigned};
 
@@ -119,6 +119,12 @@ impl<N: PrimInt> Ratio<N> {
     }
 }
 
+impl<N: PrimInt> One for Ratio<N> {
+    fn one() -> Self {
+        Ratio::new_int(N::one())
+    }
+}
+
 // TODO I think I can clean up this implementation using macros, but I need to figure out
 // how they work for trait implementations first
 
@@ -163,6 +169,16 @@ impl<M: PrimInt, O: PrimInt, N: PrimInt + Mul<M, Output = O> + Into<O>> Mul<M> f
         }
     }
 }
+impl<M, N: PrimInt> MulAssign<M> for Ratio<N>
+where
+    Ratio<N>: Mul<M, Output = Ratio<N>>,
+{
+    fn mul_assign(&mut self, rhs: M) {
+        let result = *self * rhs;
+        self.numerator = result.numerator;
+        self.denominator = result.denominator;
+    }
+}
 
 impl<D: PrimInt, O: PrimInt, N: PrimInt + Mul<D, Output = O>> Div<Ratio<D>> for Ratio<N> {
     type Output = Ratio<O>;
@@ -181,6 +197,16 @@ impl<D: PrimInt, O: PrimInt, N: PrimInt + Mul<D, Output = O> + Into<O>> Div<D> f
             numerator: self.numerator.into(),
             denominator: self.denominator * rhs,
         }
+    }
+}
+impl<D, N: PrimInt> DivAssign<D> for Ratio<N>
+where
+    Ratio<N>: Div<D, Output = Ratio<N>>,
+{
+    fn div_assign(&mut self, rhs: D) {
+        let result = *self / rhs;
+        self.numerator = result.numerator;
+        self.denominator = result.denominator;
     }
 }
 
@@ -212,6 +238,16 @@ impl<
         }
     }
 }
+impl<A, N: PrimInt> AddAssign<A> for Ratio<N>
+where
+    Ratio<N>: Add<A, Output = Ratio<N>>,
+{
+    fn add_assign(&mut self, rhs: A) {
+        let result = *self + rhs;
+        self.numerator = result.numerator;
+        self.denominator = result.denominator;
+    }
+}
 
 impl<S: PrimInt, O: PrimInt, N: PrimInt + Sub<O, Output = O> + Mul<S, Output = O>> Sub<Ratio<S>>
     for Ratio<N>
@@ -241,6 +277,16 @@ impl<
         }
     }
 }
+impl<S, N: PrimInt> SubAssign<S> for Ratio<N>
+where
+    Ratio<N>: Sub<S, Output = Ratio<N>>,
+{
+    fn sub_assign(&mut self, rhs: S) {
+        let result = *self - rhs;
+        self.numerator = result.numerator;
+        self.denominator = result.denominator;
+    }
+}
 
 pub trait PiecewiseAdd<Rhs> {
     type Output;
@@ -261,15 +307,15 @@ impl<A: PrimInt, O: PrimInt, N: PrimInt + Add<A, Output = O>> PiecewiseAdd<Ratio
 
 pub trait Simplifiable {
     #[allow(dead_code)]
-    fn simplify(self, primes: Primes) -> Ratio<u64>;
+    fn simplify(self, primes: &Primes) -> Ratio<u64>;
 }
 pub trait SignedSimplifiable {
     #[allow(dead_code)]
-    fn signed_simplify(self, primes: Primes) -> Ratio<i64>;
+    fn signed_simplify(self, primes: &Primes) -> Ratio<i64>;
 }
 
 impl<N: PrimInt + Into<u64> + Unsigned> Simplifiable for Ratio<N> {
-    fn simplify(self, primes: Primes) -> Ratio<u64> {
+    fn simplify(self, primes: &Primes) -> Ratio<u64> {
         let mut reduced_num: u64 = self.numerator.into();
         let mut reduced_denom: u64 = self.denominator.into();
 
@@ -282,7 +328,7 @@ impl<N: PrimInt + Into<u64> + Unsigned> Simplifiable for Ratio<N> {
     }
 }
 impl<N: PrimInt + Into<i64> + Signed> SignedSimplifiable for Ratio<N> {
-    fn signed_simplify(self, primes: Primes) -> Ratio<i64> {
+    fn signed_simplify(self, primes: &Primes) -> Ratio<i64> {
         let mut reduced_num: i64 = self.numerator.into();
         let mut reduced_denom: i64 = self.denominator.into();
 
@@ -369,7 +415,7 @@ mod test_ratio {
     fn test_unsigned_reduce() {
         let primes = Primes::find_primes(20);
         let orig_ratio = Ratio::new(5u64, 10u64);
-        let reduced = orig_ratio.simplify(primes);
+        let reduced = orig_ratio.simplify(&primes);
         assert!(reduced == orig_ratio);
         assert_eq!(reduced.numerator, 1);
         assert_eq!(reduced.denominator, 2);
@@ -379,7 +425,7 @@ mod test_ratio {
     fn test_signed_reduce() {
         let primes = Primes::find_primes(20);
         let orig_ratio = Ratio::new(-5i64, 10i64);
-        let reduced = orig_ratio.signed_simplify(primes);
+        let reduced = orig_ratio.signed_simplify(&primes);
         assert!(reduced == orig_ratio);
         assert_eq!(reduced, Ratio::new(-1, 2));
     }

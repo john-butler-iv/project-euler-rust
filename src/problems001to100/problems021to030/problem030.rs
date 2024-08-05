@@ -2,6 +2,8 @@
 
 use num_traits::pow;
 
+use crate::euler_tools::DigitIterator;
+
 pub fn make() -> crate::Problem {
     crate::Problem {
         title: "Digit Fifth Powers",
@@ -14,14 +16,9 @@ fn core_solve(exponent: usize) -> i64 {
     let mut sum = 0;
 
     for n in 2..=999999 {
-        let mut digit_power_sum = 0;
-        let mut digits = n;
-        while digits > 0 {
-            let digit = digits % 10;
-            digits /= 10;
-
-            digit_power_sum += pow(digit, exponent);
-        }
+        let digit_power_sum: i64 = DigitIterator::new(n)
+            .map(|digit| pow(digit, exponent))
+            .sum();
         if digit_power_sum == n {
             sum += n
         }

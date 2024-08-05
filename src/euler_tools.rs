@@ -101,6 +101,42 @@ where
     }
 }
 
+impl<I> DigitIterator<I>
+where
+    DigitIterator<I>: Iterator,
+{
+    pub fn new(number: I) -> DigitIterator<I> {
+        DigitIterator {
+            remaining_number: number,
+        }
+    }
+}
+pub struct DigitIterator<I> {
+    remaining_number: I,
+}
+
+macro_rules! digit_iterator_impl {
+    ($($prim_type:ty),*) => {
+        $(
+        impl Iterator for DigitIterator<$prim_type>{
+            type Item = $prim_type;
+
+            fn next(&mut self) -> Option<Self::Item>{
+                if self.remaining_number == 0{
+                    None
+                } else {
+                    let digit = self.remaining_number %10;
+                    self.remaining_number /= 10;
+                    Some(digit)
+                }
+            }
+        })*
+    };
+}
+
+digit_iterator_impl!(u8, u16, u32, u64, u128, usize);
+digit_iterator_impl!(i8, i16, i32, i64, i128, isize);
+
 pub fn is_palindrome(string: &str) -> bool {
     let num_bytes = string.bytes().len();
     let mut reverse_string = string.bytes().rev();
@@ -272,6 +308,18 @@ mod tests {
         for value in it {
             assert!(value < &BOUND);
         }
+    }
+
+    #[test]
+    fn test_digits() {
+        assert_eq!(
+            super::DigitIterator::new(12345isize).collect::<Vec<isize>>(),
+            vec![5, 4, 3, 2, 1]
+        );
+        assert_eq!(
+            super::DigitIterator::new(12045isize).collect::<Vec<isize>>(),
+            vec![5, 4, 0, 2, 1]
+        );
     }
 
     #[test]

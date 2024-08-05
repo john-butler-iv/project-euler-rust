@@ -4,6 +4,8 @@ use std::collections::HashSet;
 
 use num_traits::pow;
 
+use crate::euler_tools::DigitIterator;
+
 pub fn make() -> crate::Problem {
     crate::Problem {
         title: "Pandigital Products",
@@ -68,30 +70,20 @@ fn find_repeating_digit(
     n: usize,
     digit_base: usize,
 ) -> PandigitalCheckResults {
-    let mut n = n;
-    let mut current_digit_index = digit_base;
-    while n > 0 {
-        current_digit_index += 1;
-        let digit = n % 10;
-        n /= 10;
+    let mut current_digit_index = digit_base + 1;
+    for (index, digit) in DigitIterator::new(n).enumerate() {
+        current_digit_index = index + digit_base + 1;
 
         if digit == 0 {
-            return PandigitalCheckResults::HasRepeat(pow(
-                10,
-                current_digit_index - 1 - digit_base,
-            ));
+            return PandigitalCheckResults::HasRepeat(pow(10, index));
         } else if digit_cache[digit] == 0 {
             digit_cache[digit] = current_digit_index;
         } else if digit_cache[digit] <= digit_base {
-            return PandigitalCheckResults::HasRepeat(pow(
-                10,
-                current_digit_index - 1 - digit_base,
-            ));
+            return PandigitalCheckResults::HasRepeat(pow(10, index));
         } else {
             return PandigitalCheckResults::HasRepeat(pow(10, digit_cache[digit] - 1 - digit_base));
         }
     }
-
     PandigitalCheckResults::AllUnique(current_digit_index)
 }
 

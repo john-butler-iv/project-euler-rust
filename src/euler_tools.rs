@@ -137,6 +137,37 @@ macro_rules! digit_iterator_impl {
 digit_iterator_impl!(u8, u16, u32, u64, u128, usize);
 digit_iterator_impl!(i8, i16, i32, i64, i128, isize);
 
+pub trait RotateDigits: Sized {
+    fn rotate_digits(self, len: u32) -> Self;
+    #[allow(dead_code)]
+    fn rotate_digits_unsized(self) -> Self;
+}
+macro_rules! rotate_digits_impl {
+    ($($prim_type:ty),*) => {
+        $(
+            impl RotateDigits for $prim_type {
+             fn rotate_digits(self, len: u32)-> $prim_type{
+                let mut n = self;
+                let digit = n % 10;
+                n/= 10;
+                n+digit*10.pow(len - 1)
+            }
+             fn rotate_digits_unsized(self)-> $prim_type{
+                let mut len = 0;
+                let mut n = self;
+                while n != 0 {
+                    n /= 10;
+                    len += 1;
+                }
+
+                self.rotate_digits(len)
+            }
+        })*
+    };
+}
+rotate_digits_impl!(u8, u16, u32, u64, u128, usize);
+rotate_digits_impl!(i8, i16, i32, i64, i128, isize);
+
 pub fn is_palindrome(string: &str) -> bool {
     let num_bytes = string.bytes().len();
     let mut reverse_string = string.bytes().rev();
@@ -275,8 +306,9 @@ mod tests {
     use num_traits::Pow;
     use std::ops::Add;
 
+    #[allow(unused_imports)]
     use crate::euler_tools::{
-        additional_number_contansts::MorePositiveConstants, big_factorial, factorial,
+        additional_number_contansts::MorePositiveConstants, big_factorial, factorial, RotateDigits,
     };
 
     use super::{fibonacci_iterator, Fibonacci};
@@ -448,5 +480,11 @@ mod tests {
                     .add(BigUint::two())
             )
         )
+    }
+
+    #[test]
+    fn rotate_digits() {
+        assert_eq!(12345.rotate_digits(5), 51234);
+        assert_eq!(12345.rotate_digits_unsized(), 51234);
     }
 }

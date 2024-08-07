@@ -194,6 +194,16 @@ macro_rules! rotate_digits_impl {
 rotate_digits_impl!(u8, u16, u32, u64, u128, usize);
 rotate_digits_impl!(i8, i16, i32, i64, i128, isize);
 
+pub fn is_bin_palindrome(n: usize) -> bool {
+    let mut constructor = n;
+    let mut rev_n = 0;
+    while constructor != 0 {
+        rev_n = (rev_n << 1) | (constructor & 1);
+        constructor >>= 1;
+    }
+    rev_n == n
+}
+
 pub fn is_palindrome(string: &str) -> bool {
     let num_bytes = string.bytes().len();
     let mut reverse_string = string.bytes().rev();

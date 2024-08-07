@@ -3,7 +3,7 @@ mod problem032;
 mod problem033;
 mod problem034;
 mod problem035;
-//mod problem036;
+mod problem036;
 //mod problem037;
 //mod problem038;
 //mod problem039;
@@ -22,7 +22,7 @@ fn make_problem_list() -> Vec<Option<crate::Problem>> {
         Some(problem033::make()),
         Some(problem034::make()),
         Some(problem035::make()),
-        //Some(problem036::make()),
+        Some(problem036::make()),
         //Some(problem037::make()),
         //Some(problem038::make()),
         //Some(problem039::make()),

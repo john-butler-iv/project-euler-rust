@@ -105,14 +105,16 @@ impl<I> DigitIterator<I>
 where
     DigitIterator<I>: Iterator,
 {
-    pub fn new(number: I) -> DigitIterator<I> {
+    pub fn new_radix(number: I, radix: I) -> Self {
         DigitIterator {
             remaining_number: number,
+            radix,
         }
     }
 }
 pub struct DigitIterator<I> {
     remaining_number: I,
+    radix: I,
 }
 
 macro_rules! digit_iterator_impl {
@@ -125,12 +127,36 @@ macro_rules! digit_iterator_impl {
                 if self.remaining_number == 0{
                     None
                 } else {
-                    let digit = self.remaining_number %10;
-                    self.remaining_number /= 10;
+                    let digit = self.remaining_number % self.radix;
+                    self.remaining_number /= self.radix;
                     Some(digit)
                 }
             }
-        })*
+        }
+        impl DigitIterator<$prim_type>{
+            #[allow(dead_code)]
+            pub fn new(number: $prim_type) -> Self {
+                DigitIterator::new_radix(number, 10)
+            }
+            #[allow(dead_code)]
+            pub fn combine_digits(digits: &[$prim_type]) -> $prim_type{
+                let mut num = 0;
+                for digit in digits.iter().rev(){
+                    num = 10 * num + digit;
+                }
+                num
+            }
+            #[allow(dead_code)]
+            pub fn combine_digits_rotated(digits: &[$prim_type], starting_index: usize) -> $prim_type {
+                let mut num = 0;
+                for i in (starting_index..starting_index+ digits.len() ).rev(){
+                    let digit = digits[i % digits.len()];
+                    num = 10 * num + digit;
+                }
+                num
+            }
+        }
+    )*
     };
 }
 
@@ -345,11 +371,11 @@ mod tests {
     #[test]
     fn test_digits() {
         assert_eq!(
-            super::DigitIterator::new(12345isize).collect::<Vec<isize>>(),
+            super::DigitIterator::<isize>::new(12345isize).collect::<Vec<isize>>(),
             vec![5, 4, 3, 2, 1]
         );
         assert_eq!(
-            super::DigitIterator::new(12045isize).collect::<Vec<isize>>(),
+            super::DigitIterator::<isize>::new(12045isize).collect::<Vec<isize>>(),
             vec![5, 4, 0, 2, 1]
         );
     }

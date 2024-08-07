@@ -6,7 +6,7 @@ use crate::euler_tools::BoundedRefIterator;
 
 #[derive(Debug)]
 pub struct Primes {
-    prime_table: Box<[bool]>,
+    prime_table: Vec<bool>,
     primes: Vec<u32>,
     limit: u32,
 }
@@ -65,15 +65,22 @@ impl Primes {
         Primes {
             limit: Self::number_from_index(limit),
             primes,
-            prime_table: prime_table.into_boxed_slice(),
+            prime_table,
         }
     }
 
     pub fn is_prime(&self, n: &u32) -> bool {
         if n < &self.limit {
             return self.prime_table[Self::index_from_number(n)];
+        } else if n < &(self.limit * self.limit) {
+            for prime in self.prime_iterator() {
+                if n % prime == 0 {
+                    return false;
+                }
+            }
+            return true;
         }
-        todo!()
+        panic!()
     }
 
     pub fn bounded_prime_iterator(&self, limit: u32) -> BoundedRefIterator<u32> {

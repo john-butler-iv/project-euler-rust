@@ -11,7 +11,7 @@ pub fn make() -> crate::Problem {
 }
 
 fn compute_digit_sum(factorial_table: &[i64], n: i64) -> i64 {
-    DigitIterator::new(n)
+    DigitIterator::<i64>::new(n)
         .map(|digit| factorial_table[digit as usize])
         .sum()
 }

@@ -71,7 +71,7 @@ fn find_repeating_digit(
     digit_base: usize,
 ) -> PandigitalCheckResults {
     let mut current_digit_index = digit_base + 1;
-    for (index, digit) in DigitIterator::new(n).enumerate() {
+    for (index, digit) in DigitIterator::<usize>::new(n).enumerate() {
         current_digit_index = index + digit_base + 1;
 
         if digit == 0 {

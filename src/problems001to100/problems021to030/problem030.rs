@@ -16,7 +16,7 @@ fn core_solve(exponent: usize) -> i64 {
     let mut sum = 0;
 
     for n in 2..=999999 {
-        let digit_power_sum: i64 = DigitIterator::new(n)
+        let digit_power_sum: i64 = DigitIterator::<i64>::new(n)
             .map(|digit| pow(digit, exponent))
             .sum();
         if digit_power_sum == n {

@@ -194,6 +194,46 @@ macro_rules! rotate_digits_impl {
 rotate_digits_impl!(u8, u16, u32, u64, u128, usize);
 rotate_digits_impl!(i8, i16, i32, i64, i128, isize);
 
+pub trait IsPandigital: Sized {
+    #[allow(dead_code)]
+    fn is_pandigital(&self) -> bool;
+    fn are_combined_pandigital(components: &[Self]) -> bool;
+}
+macro_rules! is_pandigital_impl {
+    ($($prim_type:ty),*) => {
+        $(
+            impl IsPandigital for $prim_type{
+                fn is_pandigital( &self)-> bool{
+                    let mut digit_set = [false;10];
+                    digit_set[0] = true;
+                    let mut total_digits = 0;
+                    for digit in DigitIterator::<$prim_type>::new(*self) {
+                        if digit_set[digit as usize] {return false;}
+                        digit_set[digit as usize] = true;
+                        total_digits += 1;
+                    }
+                    total_digits == 9
+                }
+                fn are_combined_pandigital(components: &[Self]) -> bool {
+                    let mut digit_set = [false;10];
+                    digit_set[0] = true;
+                    let mut total_digits = 0;
+                    for n in components{
+                        for digit in DigitIterator::<$prim_type>::new(*n) {
+                            if digit_set[digit as usize] {return false;}
+                            digit_set[digit as usize] = true;
+                            total_digits += 1;
+                        }
+                    }
+                    total_digits == 9
+                }
+            }
+        )*
+    }
+}
+is_pandigital_impl!(u8, u16, u32, u64, u128, usize);
+is_pandigital_impl!(i8, i16, i32, i64, i128, isize);
+
 pub fn is_bin_palindrome(n: usize) -> bool {
     let mut constructor = n;
     let mut rev_n = 0;
@@ -342,9 +382,11 @@ mod tests {
     use num_traits::Pow;
     use std::ops::Add;
 
+    use crate::euler_tools::is_bin_palindrome;
     #[allow(unused_imports)]
     use crate::euler_tools::{
-        additional_number_contansts::MorePositiveConstants, big_factorial, factorial, RotateDigits,
+        additional_number_contansts::MorePositiveConstants, big_factorial, factorial, IsPandigital,
+        RotateDigits,
     };
 
     use super::{fibonacci_iterator, Fibonacci};
@@ -522,5 +564,27 @@ mod tests {
     fn rotate_digits() {
         assert_eq!(12345.rotate_digits(5), 51234);
         assert_eq!(12345.rotate_digits_unsized(), 51234);
+    }
+
+    #[test]
+    fn test_is_bin_palindrome() {
+        assert!(is_bin_palindrome(0b10101010101));
+        assert!(!is_bin_palindrome(0b1010101010));
+    }
+
+    #[test]
+    fn is_pandigital() {
+        assert!(192384576.is_pandigital());
+        assert!(918273645.is_pandigital());
+
+        assert!(!12345.is_pandigital());
+
+        assert!(!11_23456789.is_pandigital());
+    }
+
+    #[test]
+    fn are_pandigital() {
+        assert!(i64::are_combined_pandigital(&[192, 384, 576]));
+        assert!(i64::are_combined_pandigital(&[9, 18, 27, 36, 45]));
     }
 }

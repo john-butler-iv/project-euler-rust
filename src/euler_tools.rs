@@ -146,6 +146,16 @@ macro_rules! digit_iterator_impl {
                 }
                 num
             }
+
+            #[allow(dead_code)]
+            pub fn combine_digits_big_endian(digits:&[$prim_type]) ->$prim_type {
+                let mut num = 0;
+                for digit in digits.iter(){
+                    num = 10 * num + digit;
+                }
+                num
+            }
+
             #[allow(dead_code)]
             pub fn combine_digits_rotated(digits: &[$prim_type], starting_index: usize) -> $prim_type {
                 let mut num = 0;
@@ -196,14 +206,29 @@ rotate_digits_impl!(i8, i16, i32, i64, i128, isize);
 
 pub trait IsPandigital: Sized {
     #[allow(dead_code)]
+    fn is_limited_pandigital(&self) -> bool;
+    #[allow(dead_code)]
     fn is_pandigital(&self) -> bool;
     fn are_combined_pandigital(components: &[Self]) -> bool;
 }
 macro_rules! is_pandigital_impl {
     ($($prim_type:ty),*) => {
         $(
-            impl IsPandigital for $prim_type{
-                fn is_pandigital( &self)-> bool{
+            impl IsPandigital for $prim_type {
+                fn is_limited_pandigital(&self) -> bool{
+                    let mut digit_set = [false;10];
+                    digit_set[0] = true;
+                    let mut total_digits = 0;
+                    let mut max_digit = 0;
+                    for digit in DigitIterator::<$prim_type>::new(*self) {
+                        if digit_set[digit as usize] {return false;}
+                        digit_set[digit as usize] = true;
+                        total_digits += 1;
+                        max_digit = std::cmp::max(max_digit, digit)
+                    }
+                    return max_digit == total_digits;
+                }
+                fn is_pandigital(&self)-> bool{
                     let mut digit_set = [false;10];
                     digit_set[0] = true;
                     let mut total_digits = 0;

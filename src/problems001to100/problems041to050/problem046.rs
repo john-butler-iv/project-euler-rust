@@ -1,19 +1,18 @@
-// https://projecteuler.net/problem=3
-
-use crate::euler_tools::{self, prime_finder::Primes};
+// https://projecteuler.net/problem=46
 
 pub fn make() -> crate::Problem {
     crate::Problem {
         title: "template",
-        number: 3,
-        solve: || core_solve(),
+        number: 0,
+        solve: core_solve,
     }
 }
 
 fn core_solve() -> i64 {
-    0i64
+    todo!()
 }
 
+/*
 #[cfg(test)]
 mod tests {
     #[test]
@@ -26,3 +25,4 @@ mod tests {
         assert_eq!((super::make().solve)(), 0)
     }
 }
+*/

@@ -2,7 +2,7 @@
 
 use std::cmp::Ordering;
 
-use crate::euler_tools::{self, prime_finder::Primes, triangle};
+use crate::euler_tools::{prime_finder::Primes, Triangle};
 
 pub fn make() -> crate::Problem {
     crate::Problem {
@@ -22,7 +22,7 @@ fn core_solve_slow() -> i64 {
         .filter(|n| primes.is_abundant(&(*n as u64)))
         .collect();
 
-    let mut sum = triangle(MAX_NON_ABUNDANT_SUM as i64);
+    let mut sum = MAX_NON_ABUNDANT_SUM.triangle() as i64;
     let mut upper_index_bound = 3;
     for n in 24..=MAX_NON_ABUNDANT_SUM {
         if upper_index_bound < abundant_numbers.len() - 1 && abundant_numbers[upper_index_bound] < n
@@ -54,7 +54,7 @@ fn core_solve_fast() -> i64 {
         .collect();
 
     let mut can_be_expressed = vec![false; MAX_NON_ABUNDANT_SUM as usize + 1];
-    let mut sum = euler_tools::triangle(MAX_NON_ABUNDANT_SUM) as i64;
+    let mut sum = MAX_NON_ABUNDANT_SUM.triangle() as i64;
     for (index, abundant_num1) in abundant_nums.iter().enumerate() {
         for abundant_num2 in abundant_nums[index..].iter() {
             if abundant_num1 + abundant_num2 <= MAX_NON_ABUNDANT_SUM

@@ -2,7 +2,7 @@
 
 use std::cmp::max;
 
-use crate::euler_tools;
+use crate::euler_tools::Triangle;
 
 #[allow(clippy::zero_prefixed_literal)]
 pub fn make() -> crate::Problem {
@@ -23,8 +23,8 @@ pub fn make() -> crate::Problem {
 }
 
 fn core_solve(triangle: Vec<i64>) -> i64 {
-    let size = euler_tools::inverse_triange(triangle.len());
-    assert_eq!(triangle.len(), euler_tools::triangle(size));
+    let size = triangle.len().inverse_triange();
+    assert_eq!(triangle.len(), size.triangle());
 
     let mut cache = vec![0; triangle.len()];
 
@@ -32,7 +32,7 @@ fn core_solve(triangle: Vec<i64>) -> i64 {
     cache[triangle.len() - size..].clone_from_slice(&triangle[triangle.len() - size..]);
 
     for row_index in (0..size - 1).rev() {
-        let first_row_index = euler_tools::triangle(row_index);
+        let first_row_index = row_index.triangle();
         for pos_index in first_row_index..=first_row_index + row_index {
             cache[pos_index] = triangle[pos_index]
                 + max(

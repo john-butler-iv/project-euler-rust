@@ -4,7 +4,7 @@ pub mod prime_finder;
 
 use std::{
     cmp::Ordering,
-    ops::{Add, Div, Mul, Sub},
+    ops::{Add, Mul},
 };
 
 use additional_number_contansts::MorePositiveConstants;
@@ -309,33 +309,28 @@ pub fn lambert_w_m1_neg_inv(u: f64) -> f64 {
     w
 }
 
-pub fn triangle<
-    I: One + MorePositiveConstants + Add<I, Output = I> + Mul + Div<I, Output = I> + Clone,
->(
-    n: I,
-) -> I {
-    // n * (n + 1) / 2
-    n.clone().mul(n.clone().add(I::one())).div(I::two())
+pub trait Triangle {
+    fn triangle(&self) -> Self;
+    fn inverse_triange(&self) -> Self;
 }
 
-pub fn inverse_triange<
-    I: IntegerSquareRoot
-        + MorePositiveConstants
-        + One
-        + Add<I, Output = I>
-        + Mul
-        + Div<I, Output = I>
-        + Sub<I, Output = I>
-        + Clone,
->(
-    tri: I,
-) -> I {
-    // (isqrt(8 * n + 1) - 1 ) / 2
-    ((I::eight().mul(tri.clone()).add(I::one()))
-        .integer_sqrt()
-        .sub(I::one()))
-    .div(I::two())
+macro_rules! triangle_impl {
+    ( $($prim_type:ty),* ) => {
+        $(
+            impl Triangle for $prim_type {
+                fn triangle(&self)-> Self{
+                    self * (self + 1) / 2
+                }
+                fn inverse_triange(&self) -> Self {
+                    ((8 * self + 1).integer_sqrt() - 1) / 2
+                }
+            }
+        )*
+    };
 }
+
+triangle_impl!(u8, u16, u32, u64, u128, usize);
+triangle_impl!(i8, i16, i32, i64, i128, isize);
 
 #[allow(dead_code)]
 pub fn factorial<I: PrimInt>(n: I) -> Option<I> {
@@ -407,12 +402,12 @@ mod tests {
     use num_traits::Pow;
     use std::ops::Add;
 
-    use crate::euler_tools::is_bin_palindrome;
     #[allow(unused_imports)]
     use crate::euler_tools::{
         additional_number_contansts::MorePositiveConstants, big_factorial, factorial, IsPandigital,
         RotateDigits,
     };
+    use crate::euler_tools::{is_bin_palindrome, Triangle};
 
     use super::{fibonacci_iterator, Fibonacci};
 
@@ -494,7 +489,15 @@ mod tests {
         let mut curr_tri = 0;
         for n in 0..=MAX_TRI {
             curr_tri += n;
-            assert_eq!(curr_tri, super::triangle(n));
+            assert_eq!(curr_tri, n.triangle());
+        }
+    }
+
+    #[test]
+    fn first_ten_inv_tri_nums() {
+        const MAX_TRI: u64 = 10;
+        for n in 0..=MAX_TRI {
+            assert_eq!(n.triangle().inverse_triange(), n);
         }
     }
 

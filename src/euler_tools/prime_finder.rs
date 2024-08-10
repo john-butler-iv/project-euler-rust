@@ -1,4 +1,4 @@
-use std::cmp::max;
+use std::{cmp::max, time::SystemTime};
 
 use integer_sqrt::IntegerSquareRoot;
 
@@ -47,7 +47,7 @@ impl Primes {
                 continue;
             }
 
-            primes.push(Self::number_from_index(n));
+            primes.push(n as u32);
 
             for n_multiple in (2 * n..limit).step_by(n) {
                 prime_table[n_multiple] = false;
@@ -58,14 +58,22 @@ impl Primes {
         let next_odd_start = basic_start | 1;
         for i in (next_odd_start..limit).step_by(2) {
             if prime_table[i] {
-                primes.push(Self::number_from_index(i));
+                primes.push(i as u32);
             }
         }
+        println!("after final pass: {:?}", time.elapsed());
 
         Primes {
             limit: Self::number_from_index(limit),
             primes,
             prime_table,
+    }
+
+    pub fn is_prime_basic(&self, n: u32) -> bool {
+        if n < self.limit {
+            self.prime_table[Self::index_from_number(&n)]
+        } else {
+            panic!()
         }
     }
 

@@ -164,6 +164,26 @@ macro_rules! digit_iterator_impl {
                 }
                 num
             }
+
+            #[allow(dead_code)]
+            pub fn are_digital_permutations(digit_set1: &[$prim_type; 10], digit_set2: &[$prim_type; 10])-> bool{
+                for (digit_count1, digit_count2) in digit_set1.iter().zip(digit_set2.iter()) {
+                    if digit_count1 != digit_count2 {
+                        return false;
+                    }
+                }
+                true
+            }
+
+            #[allow(dead_code)]
+            pub fn create_digit_set(num: $prim_type) -> [$prim_type; 10]{
+                let mut digit_set = [0;10];
+                for digit in DigitIterator::<$prim_type>::new(num){
+                    digit_set[digit as usize] += 1;
+                }
+
+                digit_set
+            }
         }
     )* };
 }

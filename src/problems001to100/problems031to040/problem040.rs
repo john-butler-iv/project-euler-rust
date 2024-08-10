@@ -27,12 +27,12 @@ fn core_solve(digit_locations: &[usize]) -> i64 {
 
         current_digit_index += numbers_to_skip * digit_len;
         current_number += numbers_to_skip;
+        distance_to_next_bound -= numbers_to_skip;
 
         for current_digit in current_number
             .to_string()
             .into_bytes()
             .iter()
-            .rev()
             .map(|digit| (digit - b'0') as i64)
         {
             if current_digit_index == digit_locations[0] {
@@ -52,6 +52,8 @@ fn core_solve(digit_locations: &[usize]) -> i64 {
             digit_len += 1;
             distance_to_next_bound = new_digit_bound - digit_bound - 1;
             digit_bound = new_digit_bound;
+        } else {
+            distance_to_next_bound -= 1;
         }
     }
 
@@ -67,6 +69,6 @@ mod tests {
 
     #[test]
     fn verify_answer() {
-        //assert_eq!((super::make().solve)(), 210)
+        assert_eq!((super::make().solve)(), 210)
     }
 }

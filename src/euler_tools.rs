@@ -10,7 +10,7 @@ use std::{
 use additional_number_contansts::MorePositiveConstants;
 use integer_sqrt::IntegerSquareRoot;
 use num_bigint::BigUint;
-use num_traits::{CheckedAdd, CheckedMul, Num, One, PrimInt, Zero};
+use num_traits::{CheckedAdd, CheckedMul, ConstOne, Num, One, PrimInt, Zero};
 
 pub struct Fibonacci<I: Clone + Zero + One + CheckedAdd> {
     curr: Option<I>,
@@ -118,8 +118,7 @@ pub struct DigitIterator<I> {
 }
 
 macro_rules! digit_iterator_impl {
-    ($($prim_type:ty),*) => {
-        $(
+    ($($prim_type:ty),*) => { $(
         impl Iterator for DigitIterator<$prim_type>{
             type Item = $prim_type;
 
@@ -166,8 +165,7 @@ macro_rules! digit_iterator_impl {
                 num
             }
         }
-    )*
-    };
+    )* };
 }
 
 digit_iterator_impl!(u8, u16, u32, u64, u128, usize);
@@ -179,10 +177,9 @@ pub trait RotateDigits: Sized {
     fn rotate_digits_unsized(self) -> Self;
 }
 macro_rules! rotate_digits_impl {
-    ($($prim_type:ty),*) => {
-        $(
-            impl RotateDigits for $prim_type {
-             fn rotate_digits(self, len: u32)-> $prim_type{
+    ($($prim_type:ty),*) => { $(
+        impl RotateDigits for $prim_type {
+            fn rotate_digits(self, len: u32)-> $prim_type{
                 let mut n = self;
                 let digit = n % 10;
                 n/= 10;
@@ -198,8 +195,8 @@ macro_rules! rotate_digits_impl {
 
                 self.rotate_digits(len)
             }
-        })*
-    };
+        }
+    )* };
 }
 rotate_digits_impl!(u8, u16, u32, u64, u128, usize);
 rotate_digits_impl!(i8, i16, i32, i64, i128, isize);
@@ -212,49 +209,47 @@ pub trait IsPandigital: Sized {
     fn are_combined_pandigital(components: &[Self]) -> bool;
 }
 macro_rules! is_pandigital_impl {
-    ($($prim_type:ty),*) => {
-        $(
-            impl IsPandigital for $prim_type {
-                fn is_limited_pandigital(&self) -> bool{
-                    let mut digit_set = [false;10];
-                    digit_set[0] = true;
-                    let mut total_digits = 0;
-                    let mut max_digit = 0;
-                    for digit in DigitIterator::<$prim_type>::new(*self) {
-                        if digit_set[digit as usize] {return false;}
-                        digit_set[digit as usize] = true;
-                        total_digits += 1;
-                        max_digit = std::cmp::max(max_digit, digit)
-                    }
-                    return max_digit == total_digits;
+    ($($prim_type:ty),*) => { $(
+        impl IsPandigital for $prim_type {
+            fn is_limited_pandigital(&self) -> bool{
+                let mut digit_set = [false;10];
+                digit_set[0] = true;
+                let mut total_digits = 0;
+                let mut max_digit = 0;
+                for digit in DigitIterator::<$prim_type>::new(*self) {
+                    if digit_set[digit as usize] {return false;}
+                    digit_set[digit as usize] = true;
+                    total_digits += 1;
+                    max_digit = std::cmp::max(max_digit, digit)
                 }
-                fn is_pandigital(&self)-> bool{
-                    let mut digit_set = [false;10];
-                    digit_set[0] = true;
-                    let mut total_digits = 0;
-                    for digit in DigitIterator::<$prim_type>::new(*self) {
-                        if digit_set[digit as usize] {return false;}
-                        digit_set[digit as usize] = true;
-                        total_digits += 1;
-                    }
-                    total_digits == 9
-                }
-                fn are_combined_pandigital(components: &[Self]) -> bool {
-                    let mut digit_set = [false;10];
-                    digit_set[0] = true;
-                    let mut total_digits = 0;
-                    for n in components{
-                        for digit in DigitIterator::<$prim_type>::new(*n) {
-                            if digit_set[digit as usize] {return false;}
-                            digit_set[digit as usize] = true;
-                            total_digits += 1;
-                        }
-                    }
-                    total_digits == 9
-                }
+                return max_digit == total_digits;
             }
-        )*
-    }
+            fn is_pandigital(&self)-> bool{
+                let mut digit_set = [false;10];
+                digit_set[0] = true;
+                let mut total_digits = 0;
+                for digit in DigitIterator::<$prim_type>::new(*self) {
+                    if digit_set[digit as usize] {return false;}
+                    digit_set[digit as usize] = true;
+                    total_digits += 1;
+                }
+                total_digits == 9
+            }
+            fn are_combined_pandigital(components: &[Self]) -> bool {
+                let mut digit_set = [false;10];
+                digit_set[0] = true;
+                let mut total_digits = 0;
+                for n in components{
+                    for digit in DigitIterator::<$prim_type>::new(*n) {
+                        if digit_set[digit as usize] {return false;}
+                        digit_set[digit as usize] = true;
+                        total_digits += 1;
+                    }
+                }
+                total_digits == 9
+            }
+        }
+    )* }
 }
 is_pandigital_impl!(u8, u16, u32, u64, u128, usize);
 is_pandigital_impl!(i8, i16, i32, i64, i128, isize);
@@ -315,26 +310,68 @@ pub trait Triangle {
 }
 
 macro_rules! triangle_impl {
-    ( $($prim_type:ty),* ) => {
-        $(
-            impl Triangle for $prim_type {
-                fn triangle(&self)-> Self{
-                    self * (self + 1) / 2
-                }
-                fn inverse_triange(&self) -> Self {
-                    ((8 * self + 1).integer_sqrt() - 1) / 2
-                }
+    ( $($prim_type:ty),* ) => { $(
+        impl Triangle for $prim_type {
+            fn triangle(&self)-> Self{
+                self * (self + 1) / 2
             }
-        )*
-    };
+            fn inverse_triange(&self) -> Self {
+                ((8 * self + 1).integer_sqrt() - 1) / 2
+            }
+        }
+    )* };
 }
 
 triangle_impl!(u8, u16, u32, u64, u128, usize);
 triangle_impl!(i8, i16, i32, i64, i128, isize);
 
+pub trait Pentagon {
+    fn pentagon(&self) -> Self;
+    fn inverse_pentagon(&self) -> f64;
+    fn is_pentagonal(&self) -> bool;
+}
+
+macro_rules! pentagon_impl {
+    ( $($prim_type: ty), *) => { $(
+        impl Pentagon for $prim_type {
+            #[inline]
+            fn pentagon(&self) -> Self {
+                self * (3 * self - 1) / 2
+            }
+            #[inline]
+            fn inverse_pentagon(&self) -> f64 {
+                (f64::sqrt((24 * self + 1) as f64) + 1.0) / 6.0
+                // NOTE: if a number is pentagonal, (sqrt(24x + 1) + 1) 6 is the index
+            }
+            fn is_pentagonal(&self) -> bool {
+                let inverse_pentagon = self.inverse_pentagon();
+                inverse_pentagon == inverse_pentagon.trunc()
+            }
+        }
+    )* };
+}
+pentagon_impl!(u8, u16, u32, u64, u128, usize);
+pentagon_impl!(i8, i16, i32, i64, i128, isize);
+
+pub trait Hexagon {
+    fn hexagon(&self) -> Self;
+}
+
+macro_rules! hexagon_impl {
+    ( $($prim_type:ty), *) => {$(
+        impl Hexagon for $prim_type {
+            fn hexagon(&self) -> Self{
+                self * (2 * self - 1)
+            }
+        }
+    )* };
+}
+hexagon_impl!(u8, u16, u32, u64, u128, usize);
+hexagon_impl!(i8, i16, i32, i64, i128, isize);
+
 #[allow(dead_code)]
-pub fn factorial<I: PrimInt>(n: I) -> Option<I> {
-    let mut fact: I = I::one();
+pub fn factorial<I: PrimInt + ConstOne>(n: I) -> Option<I> {
+    let mut fact: I = I::ONE;
     for i in 2..=n
         .to_u128()
         .expect("n is unsigned, and u128 is the biggest primative uint")

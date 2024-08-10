@@ -19,7 +19,7 @@ fn core_solve(starting_num: u32) -> i64 {
     let mut prime_iter = primes.prime_iterator().skip(167);
     // technically this will skip the first number we could possibly check, but if input
     // a prime, then that's okay
-    assert!(starting_num < 1000 || primes.is_prime(&starting_num));
+    assert!(starting_num < 1000 || primes.is_prime(starting_num));
     while *prime_iter.next().unwrap() < starting_num {}
 
     for num1 in prime_iter {
@@ -27,7 +27,7 @@ fn core_solve(starting_num: u32) -> i64 {
         for addend in (2..=5000 - num1 / 2).step_by(2) {
             let num2 = num1 + addend;
             let num3 = num2 + addend;
-            if !primes.is_prime(&num2) || !primes.is_prime(&num3) {
+            if !primes.is_prime(num2) || !primes.is_prime(num3) {
                 continue;
             }
             let num2_digit_set = DigitIterator::<u32>::create_digit_set(num2);

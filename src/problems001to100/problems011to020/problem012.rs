@@ -20,7 +20,7 @@ fn core_solve(min_divisors: usize) -> i64 {
     for n in 1..limit as u64 {
         triangle += n;
 
-        if primes.divisors(&triangle) > min_divisors {
+        if primes.divisors(triangle) > min_divisors {
             return triangle as i64;
         }
     }

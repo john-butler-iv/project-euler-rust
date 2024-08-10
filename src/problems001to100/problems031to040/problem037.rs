@@ -13,7 +13,7 @@ pub fn make() -> crate::Problem {
 fn is_right_truncatable(n: u32, primes: &Primes) -> bool {
     let mut n = n / 10;
     while n > 0 {
-        if !primes.is_prime(&n) {
+        if !primes.is_prime(n) {
             return false;
         }
         n /= 10;
@@ -24,7 +24,7 @@ fn is_right_truncatable(n: u32, primes: &Primes) -> bool {
 fn is_left_truncatable(n: u32, biggest_digit: u32, primes: &Primes) -> bool {
     let mut biggest_digit = biggest_digit / 10;
     while biggest_digit > 1 {
-        if !primes.is_prime(&(n % biggest_digit)) {
+        if !primes.is_prime(n % biggest_digit) {
             return false;
         }
         biggest_digit /= 10;

@@ -17,7 +17,7 @@ fn check_circular_primes(prime: u32, counted_set: &mut HashSet<u32>, primes: &Pr
     let mut rotated_digits = vec![prime];
     for starting_index in 1..digits.len() {
         let num = DigitIterator::<u32>::combine_digits_rotated(&digits, starting_index);
-        if !primes.is_prime(&num) {
+        if !primes.is_prime(num) {
             return;
         }
         rotated_digits.push(num);

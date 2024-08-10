@@ -21,7 +21,7 @@ fn core_solve() -> i64 {
 
     let mut digits = [9, 8, 7, 6, 5, 4, 3, 2, 1];
     let mut starting_digit_index = 0;
-    while !primes.is_prime(&DigitIterator::<u32>::combine_digits_big_endian(
+    while !primes.is_prime(DigitIterator::<u32>::combine_digits_big_endian(
         &digits[starting_digit_index..],
     )) {
         if inplace_previous_permute(&mut digits[starting_digit_index..])

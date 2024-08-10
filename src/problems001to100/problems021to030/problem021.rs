@@ -15,13 +15,13 @@ fn core_solve(amicables_under: u64) -> i64 {
     let pf = Primes::find_primes(amicables_under as usize);
 
     for i in 3..amicables_under {
-        let sig_i = pf.sigma(&i);
+        let sig_i = pf.sigma(i);
         let j = sig_i - i;
         if i == j {
             continue;
         }
 
-        let sig_j = pf.sigma(&j);
+        let sig_j = pf.sigma(j);
         if sig_j == sig_i {
             amicable_sum += i as i64;
         }

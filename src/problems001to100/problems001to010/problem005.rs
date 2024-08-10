@@ -16,9 +16,7 @@ fn core_solve(limit: usize) -> i64 {
     let mut total_factor_multiplicity: Vec<u32> = vec![0; limit + 1];
 
     for num in 2..limit {
-        let num_factors = primes.prime_factorize(&u64::try_from(num).expect(
-            "if we run into capacity concerns, this algorithm will take too long to run anyway",
-        ));
+        let num_factors = primes.prime_factorize(num as u64);
 
         let mut current_factor_multiplicity = vec![0; limit + 1];
         for p in num_factors {

@@ -47,7 +47,7 @@ fn count_consecutive_primes(primes: &Primes, a: i64, b: i64) -> i64 {
         if quad_value < 0 {
             return n;
         }
-        if !primes.is_prime(&(quad_value as u32)) {
+        if !primes.is_prime(quad_value as u32) {
             return n;
         }
     }

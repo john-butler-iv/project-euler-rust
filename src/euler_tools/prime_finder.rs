@@ -1,4 +1,4 @@
-use std::{cmp::max, time::SystemTime};
+use std::cmp::max;
 
 use integer_sqrt::IntegerSquareRoot;
 
@@ -13,14 +13,6 @@ pub struct Primes {
 
 #[allow(dead_code)]
 impl Primes {
-    // mostly factoring out to share error message
-    fn number_from_index(index: usize) -> u32 {
-        u32::try_from(index).expect("usize should be at least 32 bits")
-    }
-    fn index_from_number(number: &u32) -> usize {
-        usize::try_from(number.to_owned()).expect("usize should be at least 32 bits")
-    }
-
     pub fn get_prime(&self, prime: usize) -> Option<&u32> {
         self.primes.get(prime)
     }
@@ -61,26 +53,26 @@ impl Primes {
                 primes.push(i as u32);
             }
         }
-        println!("after final pass: {:?}", time.elapsed());
 
         Primes {
-            limit: Self::number_from_index(limit),
+            limit: limit as u32,
             primes,
             prime_table,
+        }
     }
 
     pub fn is_prime_basic(&self, n: u32) -> bool {
         if n < self.limit {
-            self.prime_table[Self::index_from_number(&n)]
+            self.prime_table[n as usize]
         } else {
             panic!()
         }
     }
 
-    pub fn is_prime(&self, n: &u32) -> bool {
-        if n < &self.limit {
-            return self.prime_table[Self::index_from_number(n)];
-        } else if n < &(self.limit * self.limit) {
+    pub fn is_prime(&self, n: u32) -> bool {
+        if n < self.limit {
+            return self.prime_table[n as usize];
+        } else if n < self.limit * self.limit {
             for prime in self.prime_iterator() {
                 if n % prime == 0 {
                     return false;
@@ -99,20 +91,14 @@ impl Primes {
         self.primes.iter()
     }
 
-    pub fn prime_factorize(&self, n: &u64) -> Vec<u64> {
-        if n < &u64::from(self.limit)
-            && self.is_prime(
-                &(u32::try_from(n.to_owned()).expect("previously compared to less than a u32")),
-            )
-            || *n == 0
-            || *n == 1
-        {
-            return vec![*n];
+    pub fn prime_factorize(&self, n: u64) -> Vec<u64> {
+        if n < self.limit as u64 && self.is_prime(n as u32) || n == 0 || n == 1 {
+            return vec![n];
         }
 
         let mut factors: Vec<u64> = Vec::new();
 
-        let mut n = n.to_owned();
+        let mut n = n;
         for p in self.prime_iterator() {
             let p = p.to_owned() as u64;
             while n % p == 0 {
@@ -127,20 +113,14 @@ impl Primes {
         factors
     }
 
-    pub fn unique_prime_factorize(&self, n: &u64) -> Vec<u64> {
-        if n < &u64::from(self.limit)
-            && self.is_prime(
-                &(u32::try_from(n.to_owned()).expect("previously compared to less than a u32")),
-            )
-            || *n == 0
-            || *n == 1
-        {
-            return vec![*n];
+    pub fn unique_prime_factorize(&self, n: u64) -> Vec<u64> {
+        if n < self.limit as u64 && self.is_prime(n as u32) || n == 0 || n == 1 {
+            return vec![n];
         }
 
         let mut factors: Vec<u64> = Vec::new();
 
-        let mut n = n.to_owned();
+        let mut n = n;
         for p in self.prime_iterator() {
             let p = p.to_owned() as u64;
             if n % p == 0 {
@@ -161,18 +141,16 @@ impl Primes {
         factors
     }
 
-    pub fn all_factors(&self, n: &u64) -> Vec<u64> {
-        if n < &u64::from(self.limit)
-            && self.is_prime(&u32::try_from(*n).expect("just checked less than u32"))
-        {
-            return vec![1, *n];
+    pub fn all_factors(&self, n: u64) -> Vec<u64> {
+        if n < self.limit as u64 && self.is_prime(n as u32) {
+            return vec![1, n];
         }
-        if *n < 2 {
-            return vec![*n];
+        if n < 2 {
+            return vec![n];
         }
 
         let mut lower_factors = vec![1];
-        let mut upper_factors = vec![*n];
+        let mut upper_factors = vec![n];
 
         let sqrt = n.integer_sqrt();
 
@@ -183,7 +161,7 @@ impl Primes {
             }
         }
 
-        if sqrt * sqrt == *n {
+        if sqrt * sqrt == n {
             lower_factors.push(sqrt);
         } else if n % sqrt == 0 {
             lower_factors.push(sqrt);
@@ -194,11 +172,11 @@ impl Primes {
         lower_factors
     }
 
-    pub fn divisors(&self, n: &u64) -> usize {
-        if *n == 0 {
+    pub fn divisors(&self, n: u64) -> usize {
+        if n == 0 {
             return 0;
         }
-        if *n == 1 {
+        if n == 1 {
             return 1;
         }
         let factors = self.prime_factorize(n);
@@ -222,30 +200,30 @@ impl Primes {
         divisors
     }
 
-    pub fn sigma(&self, n: &u64) -> u64 {
+    pub fn sigma(&self, n: u64) -> u64 {
         self.all_factors(n).iter().sum()
     }
 
-    fn sigma_cmp(&self, n: &u64) -> std::cmp::Ordering {
+    fn sigma_cmp(&self, n: u64) -> std::cmp::Ordering {
         self.sigma(n).cmp(&(2 * n))
     }
 
-    pub fn is_deficient(&self, n: &u64) -> bool {
+    pub fn is_deficient(&self, n: u64) -> bool {
         self.sigma_cmp(n) == std::cmp::Ordering::Less
     }
 
-    pub fn is_perfect(&self, n: &u64) -> bool {
+    pub fn is_perfect(&self, n: u64) -> bool {
         self.sigma_cmp(n) == std::cmp::Ordering::Equal
     }
 
-    pub fn is_abundant(&self, n: &u64) -> bool {
+    pub fn is_abundant(&self, n: u64) -> bool {
         self.sigma_cmp(n) == std::cmp::Ordering::Greater
     }
 
-    pub fn gcd(&self, a: &u64, b: &u64) -> u64 {
+    pub fn gcd(&self, a: u64, b: u64) -> u64 {
         self.find_gcd_and_reduce(&mut a.to_owned(), &mut b.to_owned())
     }
-    pub fn gcd_signed(&self, a: &i64, b: &i64) -> u64 {
+    pub fn gcd_signed(&self, a: i64, b: i64) -> u64 {
         self.find_gcd_and_reduce_signed(&mut a.to_owned(), &mut b.to_owned())
     }
 
@@ -269,7 +247,7 @@ impl Primes {
         // TODO I should actually verify that this approach works better finding both factors
         // and comparing the lists
         let mut gcd = 1;
-        for a_factor in self.prime_factorize(a) {
+        for a_factor in self.prime_factorize(*a) {
             if *b % a_factor == 0 {
                 *b /= a_factor;
                 gcd *= a_factor;
@@ -328,80 +306,71 @@ mod tests {
     fn prime_table_correct() {
         let primes = Primes::find_primes(100);
         for n in 0..primes.limit {
-            assert_eq!(primes.is_prime(&n), primes.primes.contains(&n))
+            assert_eq!(primes.is_prime(n), primes.primes.contains(&n))
         }
     }
 
     #[test]
     fn primes_factorized() {
         let primes = Primes::find_primes(100);
-        assert_eq!(primes.prime_factorize(&0), vec![0]);
-        assert_eq!(primes.prime_factorize(&1), vec![1]);
+        assert_eq!(primes.prime_factorize(0), vec![0]);
+        assert_eq!(primes.prime_factorize(1), vec![1]);
         for p in primes.primes.iter() {
-            assert_eq!(
-                primes.prime_factorize(&u64::from(p.to_owned())),
-                vec![p.to_owned() as u64]
-            )
+            assert_eq!(primes.prime_factorize(*p as u64), vec![*p as u64])
         }
     }
 
     #[test]
     fn primes_uniquely_factorized() {
         let primes = Primes::find_primes(100);
-        assert_eq!(primes.unique_prime_factorize(&0), vec![0]);
-        assert_eq!(primes.unique_prime_factorize(&1), vec![1]);
+        assert_eq!(primes.unique_prime_factorize(0), vec![0]);
+        assert_eq!(primes.unique_prime_factorize(1), vec![1]);
         for p in primes.primes.iter() {
-            assert_eq!(
-                primes.unique_prime_factorize(&u64::from(p.to_owned())),
-                vec![p.to_owned() as u64]
-            )
+            assert_eq!(primes.unique_prime_factorize(*p as u64), vec![*p as u64])
         }
     }
 
     #[test]
     fn primes_all_factored() {
         let primes = Primes::find_primes(100);
-        assert_eq!(primes.all_factors(&0), vec![0]);
-        assert_eq!(primes.all_factors(&1), vec![1]);
+        assert_eq!(primes.all_factors(0), vec![0]);
+        assert_eq!(primes.all_factors(1), vec![1]);
         for p in primes.primes.iter() {
-            assert_eq!(
-                primes.all_factors(&u64::from(p.to_owned())),
-                vec![1, p.to_owned() as u64]
-            )
+            assert_eq!(primes.all_factors(*p as u64), vec![1, *p as u64])
         }
     }
 
     #[test]
     fn composites_factored() {
         let primes = Primes::find_primes(100);
-        assert_eq!(primes.prime_factorize(&4), vec![2, 2]);
-        assert_eq!(primes.prime_factorize(&6), vec![2, 3]);
-        assert_eq!(primes.prime_factorize(&8), vec![2, 2, 2]);
-        assert_eq!(primes.prime_factorize(&9), vec![3, 3]);
-        assert_eq!(primes.prime_factorize(&10), vec![2, 5]);
-        assert_eq!(primes.prime_factorize(&12), vec![2, 2, 3]);
+        assert_eq!(primes.prime_factorize(4), vec![2, 2]);
+        assert_eq!(primes.prime_factorize(6), vec![2, 3]);
+        assert_eq!(primes.prime_factorize(8), vec![2, 2, 2]);
+        assert_eq!(primes.prime_factorize(9), vec![3, 3]);
+        assert_eq!(primes.prime_factorize(10), vec![2, 5]);
+        assert_eq!(primes.prime_factorize(12), vec![2, 2, 3]);
     }
 
     #[test]
     fn composites_uniquely_factored() {
         let primes = Primes::find_primes(100);
-        assert_eq!(primes.unique_prime_factorize(&4), vec![2]);
-        assert_eq!(primes.unique_prime_factorize(&6), vec![2, 3]);
-        assert_eq!(primes.unique_prime_factorize(&8), vec![2]);
-        assert_eq!(primes.unique_prime_factorize(&9), vec![3]);
-        assert_eq!(primes.unique_prime_factorize(&10), vec![2, 5]);
-        assert_eq!(primes.unique_prime_factorize(&12), vec![2, 3]);
+        assert_eq!(primes.unique_prime_factorize(4), vec![2]);
+        assert_eq!(primes.unique_prime_factorize(6), vec![2, 3]);
+        assert_eq!(primes.unique_prime_factorize(8), vec![2]);
+        assert_eq!(primes.unique_prime_factorize(9), vec![3]);
+        assert_eq!(primes.unique_prime_factorize(10), vec![2, 5]);
+        assert_eq!(primes.unique_prime_factorize(12), vec![2, 3]);
     }
 
     #[test]
     fn composites_all_factored() {
         let primes = Primes::find_primes(100);
-        assert_eq!(primes.all_factors(&4), vec![1, 2, 4]);
-        assert_eq!(primes.all_factors(&6), vec![1, 2, 3, 6]);
-        assert_eq!(primes.all_factors(&8), vec![1, 2, 4, 8]);
-        assert_eq!(primes.all_factors(&9), vec![1, 3, 9]);
-        assert_eq!(primes.all_factors(&10), vec![1, 2, 5, 10]);
-        assert_eq!(primes.all_factors(&12), vec![1, 2, 3, 4, 6, 12]);
+        assert_eq!(primes.all_factors(4), vec![1, 2, 4]);
+        assert_eq!(primes.all_factors(6), vec![1, 2, 3, 6]);
+        assert_eq!(primes.all_factors(8), vec![1, 2, 4, 8]);
+        assert_eq!(primes.all_factors(9), vec![1, 3, 9]);
+        assert_eq!(primes.all_factors(10), vec![1, 2, 5, 10]);
+        assert_eq!(primes.all_factors(12), vec![1, 2, 3, 4, 6, 12]);
     }
 
     #[test]
@@ -409,7 +378,7 @@ mod tests {
         let primes_orig = Primes::find_primes(100);
 
         assert_eq!(
-            primes_orig.prime_factorize(&u64::from(primes_orig.limit - 1)),
+            primes_orig.prime_factorize((primes_orig.limit - 1) as u64),
             vec![3, 3, 11]
         );
 
@@ -418,11 +387,11 @@ mod tests {
             .last()
             .expect("No prime found below 100");
 
-        let primes = Primes::find_primes(Primes::index_from_number(&(last_prime + 1)));
+        let primes = Primes::find_primes((last_prime + 1) as usize);
 
         assert_eq!(
-            primes.prime_factorize(&u64::from(last_prime.to_owned())),
-            vec![last_prime.to_owned() as u64]
+            primes.prime_factorize(*last_prime as u64),
+            vec![*last_prime as u64]
         );
     }
     #[test]
@@ -430,7 +399,7 @@ mod tests {
         let primes_orig = Primes::find_primes(100);
 
         assert_eq!(
-            primes_orig.unique_prime_factorize(&u64::from(primes_orig.limit - 1)),
+            primes_orig.unique_prime_factorize((primes_orig.limit - 1) as u64),
             vec![3, 11]
         );
 
@@ -439,10 +408,10 @@ mod tests {
             .last()
             .expect("No prime found below 100");
 
-        let primes = Primes::find_primes(Primes::index_from_number(&(last_prime + 1)));
+        let primes = Primes::find_primes((last_prime + 1) as usize);
 
         assert_eq!(
-            primes.unique_prime_factorize(&u64::from(last_prime.to_owned())),
+            primes.unique_prime_factorize(*last_prime as u64),
             vec![last_prime.to_owned() as u64]
         );
     }
@@ -452,8 +421,8 @@ mod tests {
         let primes = Primes::find_primes(100);
         for n in 2..primes.limit as u64 {
             assert_eq!(
-                primes.divisors(&n),
-                primes.all_factors(&n).len(),
+                primes.divisors(n),
+                primes.all_factors(n).len(),
                 "finding divisors of {n}."
             );
         }
@@ -479,7 +448,7 @@ mod tests {
             91, 92, 93, 94, 95, 97, 98, 99,
         ];
         for n in 1..=100 {
-            assert_eq!(primes.is_deficient(&n), defficient_numbers.contains(&n))
+            assert_eq!(primes.is_deficient(n), defficient_numbers.contains(&n))
         }
     }
 
@@ -488,7 +457,7 @@ mod tests {
         let primes = Primes::find_primes(100);
         let perfect_numbers = [6, 28];
         for n in 1..=100 {
-            assert_eq!(primes.is_perfect(&n), perfect_numbers.contains(&n))
+            assert_eq!(primes.is_perfect(n), perfect_numbers.contains(&n))
         }
     }
 
@@ -499,7 +468,7 @@ mod tests {
             12, 18, 20, 24, 30, 36, 40, 42, 48, 54, 56, 60, 66, 70, 72, 78, 80, 84, 88, 90, 96, 100,
         ];
         for n in 1..=100 {
-            assert_eq!(primes.is_abundant(&n), abundant.contains(&n))
+            assert_eq!(primes.is_abundant(n), abundant.contains(&n))
         }
     }
 
@@ -507,8 +476,8 @@ mod tests {
     fn gcd() {
         let primes = Primes::find_primes(100);
 
-        assert_eq!(primes.gcd(&10, &20), 10);
-        assert_eq!(primes.gcd_signed(&10, &-20), 10);
+        assert_eq!(primes.gcd(10, 20), 10);
+        assert_eq!(primes.gcd_signed(10, -20), 10);
 
         let mut a = 10;
         let mut b = 20;

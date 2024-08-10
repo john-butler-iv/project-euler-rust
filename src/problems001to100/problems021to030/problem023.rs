@@ -19,7 +19,7 @@ const MAX_NON_ABUNDANT_SUM: u32 = 20161; // 28123 is the given value, but 20161 
 fn core_solve_slow() -> i64 {
     let primes = Primes::find_primes((MAX_NON_ABUNDANT_SUM - 12) as usize);
     let abundant_numbers: Vec<u32> = (12..MAX_NON_ABUNDANT_SUM)
-        .filter(|n| primes.is_abundant(&(*n as u64)))
+        .filter(|n| primes.is_abundant(*n as u64))
         .collect();
 
     let mut sum = Triangle::triangle(MAX_NON_ABUNDANT_SUM) as i64;
@@ -50,7 +50,7 @@ fn core_solve_slow() -> i64 {
 fn core_solve_fast() -> i64 {
     let primes = Primes::find_primes((MAX_NON_ABUNDANT_SUM - 12) as usize);
     let abundant_nums: Vec<u32> = (12..MAX_NON_ABUNDANT_SUM)
-        .filter(|n| primes.is_abundant(&(*n as u64)))
+        .filter(|n| primes.is_abundant(*n as u64))
         .collect();
 
     let mut can_be_expressed = vec![false; MAX_NON_ABUNDANT_SUM as usize + 1];

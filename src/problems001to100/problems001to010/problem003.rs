@@ -33,14 +33,12 @@ fn core_solve(input: i64) -> i64 {
 // Also that's still slower than the fast approach
 #[allow(dead_code)]
 fn core_solve_slow(input: u64) -> i64 {
-    Primes::find_primes(IntegerSquareRoot::integer_sqrt(
-        &usize::try_from(input).expect("usize should be 32 or 64"),
-    ))
-    .prime_factorize(&input)
-    .iter()
-    .last()
-    .unwrap_or(&input)
-    .to_owned() as i64
+    Primes::find_primes(IntegerSquareRoot::integer_sqrt(&(input as usize)))
+        .prime_factorize(input)
+        .iter()
+        .last()
+        .unwrap_or(&input)
+        .to_owned() as i64
 }
 
 #[cfg(test)]
@@ -74,6 +72,6 @@ mod tests {
     fn toy_factorization() {
         let primes = Primes::find_primes(13195);
 
-        assert_eq!(primes.prime_factorize(&13195), vec![5, 7, 13, 29]);
+        assert_eq!(primes.prime_factorize(13195), vec![5, 7, 13, 29]);
     }
 }

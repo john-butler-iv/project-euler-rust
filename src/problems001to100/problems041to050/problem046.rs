@@ -17,7 +17,7 @@ fn is_representable(n: u32, primes: &Primes) -> bool {
             return false;
         }
         let remainder = n - square_term;
-        if primes.is_prime(&remainder) {
+        if primes.is_prime(remainder) {
             return true;
         }
     }
@@ -28,7 +28,7 @@ fn core_solve() -> i64 {
     let primes = Primes::find_primes(10000);
     (9..)
         .step_by(2)
-        .find(|n| !primes.is_prime(n) && !is_representable(*n, &primes))
+        .find(|n| !primes.is_prime(*n) && !is_representable(*n, &primes))
         .expect("we're told it's there. ") as i64
 }
 

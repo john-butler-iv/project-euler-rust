@@ -14,11 +14,11 @@ pub fn make() -> crate::Problem {
 
 fn core_solve(starting_t: i64, starting_p: i64, starting_h: i64) -> i64 {
     let mut t_index = starting_t + 1;
-    let mut triangle = t_index.triangle();
+    let mut triangle = Triangle::triangle(t_index);
     let mut p_index = starting_p + 1;
-    let mut pentagon = p_index.pentagon();
+    let mut pentagon = Pentagon::pentagon(p_index);
     let mut h_index = starting_h;
-    let mut hexagon = h_index.hexagon();
+    let mut hexagon = Hexagon::hexagon(h_index);
 
     while triangle != pentagon {
         hexagon += 4 * h_index + 1;

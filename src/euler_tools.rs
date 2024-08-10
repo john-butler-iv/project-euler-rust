@@ -172,28 +172,30 @@ digit_iterator_impl!(u8, u16, u32, u64, u128, usize);
 digit_iterator_impl!(i8, i16, i32, i64, i128, isize);
 
 pub trait RotateDigits: Sized {
-    fn rotate_digits(self, len: u32) -> Self;
+    fn rotate_digits(n: Self, len: u32) -> Self;
     #[allow(dead_code)]
-    fn rotate_digits_unsized(self) -> Self;
+    fn rotate_digits_unsized(n: Self) -> Self;
 }
 macro_rules! rotate_digits_impl {
     ($($prim_type:ty),*) => { $(
         impl RotateDigits for $prim_type {
-            fn rotate_digits(self, len: u32)-> $prim_type{
-                let mut n = self;
+            fn rotate_digits(n: Self, len: u32)-> $prim_type{
+                let mut n = n;
                 let digit = n % 10;
-                n/= 10;
+                n /= 10;
                 n+digit*10.pow(len - 1)
             }
-             fn rotate_digits_unsized(self)-> $prim_type{
+             fn rotate_digits_unsized(n: Self)-> $prim_type{
                 let mut len = 0;
-                let mut n = self;
-                while n != 0 {
-                    n /= 10;
-                    len += 1;
-                }
+                {
+                    let mut n = n;
+                    while n != 0 {
+                        n /= 10;
+                        len += 1;
+                    }
+                };
 
-                self.rotate_digits(len)
+                RotateDigits::rotate_digits(n, len)
             }
         }
     )* };
@@ -305,18 +307,18 @@ pub fn lambert_w_m1_neg_inv(u: f64) -> f64 {
 }
 
 pub trait Triangle {
-    fn triangle(&self) -> Self;
-    fn inverse_triange(&self) -> Self;
+    fn triangle(n: Self) -> Self;
+    fn inverse_triangle(n: Self) -> Self;
 }
 
 macro_rules! triangle_impl {
     ( $($prim_type:ty),* ) => { $(
         impl Triangle for $prim_type {
-            fn triangle(&self)-> Self{
-                self * (self + 1) / 2
+            fn triangle(t: Self)-> Self{
+                t * (t + 1) / 2
             }
-            fn inverse_triange(&self) -> Self {
-                ((8 * self + 1).integer_sqrt() - 1) / 2
+            fn inverse_triangle(triangle: Self) -> Self {
+                ((8 * triangle + 1).integer_sqrt() - 1) / 2
             }
         }
     )* };
@@ -326,25 +328,25 @@ triangle_impl!(u8, u16, u32, u64, u128, usize);
 triangle_impl!(i8, i16, i32, i64, i128, isize);
 
 pub trait Pentagon {
-    fn pentagon(&self) -> Self;
-    fn inverse_pentagon(&self) -> f64;
-    fn is_pentagonal(&self) -> bool;
+    fn pentagon(p: Self) -> Self;
+    fn inverse_pentagon(pentagon: Self) -> f64;
+    fn is_pentagonal(pentagon: Self) -> bool;
 }
 
 macro_rules! pentagon_impl {
     ( $($prim_type: ty), *) => { $(
         impl Pentagon for $prim_type {
             #[inline]
-            fn pentagon(&self) -> Self {
-                self * (3 * self - 1) / 2
+            fn pentagon(p: Self) -> Self {
+                p * (3 * p - 1) / 2
             }
             #[inline]
-            fn inverse_pentagon(&self) -> f64 {
-                (f64::sqrt((24 * self + 1) as f64) + 1.0) / 6.0
+            fn inverse_pentagon(pentagon: Self) -> f64 {
+                (f64::sqrt((24 * pentagon + 1) as f64) + 1.0) / 6.0
                 // NOTE: if a number is pentagonal, (sqrt(24x + 1) + 1) 6 is the index
             }
-            fn is_pentagonal(&self) -> bool {
-                let inverse_pentagon = self.inverse_pentagon();
+            fn is_pentagonal(pentagon: Self) -> bool {
+                let inverse_pentagon = Pentagon::inverse_pentagon(pentagon);
                 inverse_pentagon == inverse_pentagon.trunc()
             }
         }
@@ -354,14 +356,14 @@ pentagon_impl!(u8, u16, u32, u64, u128, usize);
 pentagon_impl!(i8, i16, i32, i64, i128, isize);
 
 pub trait Hexagon {
-    fn hexagon(&self) -> Self;
+    fn hexagon(h: Self) -> Self;
 }
 
 macro_rules! hexagon_impl {
     ( $($prim_type:ty), *) => {$(
         impl Hexagon for $prim_type {
-            fn hexagon(&self) -> Self{
-                self * (2 * self - 1)
+            fn hexagon(h: Self) -> Self{
+                h * (2 * h - 1)
             }
         }
     )* };
@@ -526,7 +528,7 @@ mod tests {
         let mut curr_tri = 0;
         for n in 0..=MAX_TRI {
             curr_tri += n;
-            assert_eq!(curr_tri, n.triangle());
+            assert_eq!(curr_tri, Triangle::triangle(n));
         }
     }
 
@@ -534,7 +536,7 @@ mod tests {
     fn first_ten_inv_tri_nums() {
         const MAX_TRI: u64 = 10;
         for n in 0..=MAX_TRI {
-            assert_eq!(n.triangle().inverse_triange(), n);
+            assert_eq!(Triangle::inverse_triangle(Triangle::triangle(n)), n);
         }
     }
 
@@ -627,8 +629,8 @@ mod tests {
 
     #[test]
     fn rotate_digits() {
-        assert_eq!(12345.rotate_digits(5), 51234);
-        assert_eq!(12345.rotate_digits_unsized(), 51234);
+        assert_eq!(RotateDigits::rotate_digits(12345, 5), 51234);
+        assert_eq!(RotateDigits::rotate_digits_unsized(12345), 51234);
     }
 
     #[test]

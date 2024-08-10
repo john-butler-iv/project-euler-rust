@@ -23,8 +23,8 @@ pub fn make() -> crate::Problem {
 }
 
 fn core_solve(triangle: Vec<i64>) -> i64 {
-    let size = triangle.len().inverse_triange();
-    assert_eq!(triangle.len(), size.triangle());
+    let size = Triangle::inverse_triangle(triangle.len());
+    assert_eq!(triangle.len(), Triangle::triangle(size));
 
     let mut cache = vec![0; triangle.len()];
 
@@ -32,7 +32,7 @@ fn core_solve(triangle: Vec<i64>) -> i64 {
     cache[triangle.len() - size..].clone_from_slice(&triangle[triangle.len() - size..]);
 
     for row_index in (0..size - 1).rev() {
-        let first_row_index = row_index.triangle();
+        let first_row_index = Triangle::triangle(row_index);
         for pos_index in first_row_index..=first_row_index + row_index {
             cache[pos_index] = triangle[pos_index]
                 + max(

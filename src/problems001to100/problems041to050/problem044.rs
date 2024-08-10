@@ -13,14 +13,14 @@ pub fn make() -> crate::Problem {
 fn core_solve() -> i64 {
     let mut k = 3;
     loop {
-        let p_k = k.pentagon();
+        let p_k = Pentagon::pentagon(k);
         for j in (2..k).rev() {
-            let p_j = j.pentagon();
+            let p_j = Pentagon::pentagon(j);
             let pentagon_diff = p_k - p_j;
-            if !pentagon_diff.is_pentagonal() {
+            if !Pentagon::is_pentagonal(pentagon_diff) {
                 continue;
             }
-            if !(p_k + p_j).is_pentagonal() {
+            if !Pentagon::is_pentagonal(p_k + p_j) {
                 continue;
             }
             return pentagon_diff;

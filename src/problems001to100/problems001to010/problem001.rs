@@ -1,8 +1,6 @@
 // https://projecteuler.net/problem=1
 
-fn core_solve(limit: i64) -> i64 {
-    (1..limit).filter(|n| n % 3 == 0 || n % 5 == 0).sum()
-}
+use crate::euler_tools::Triangle;
 
 pub fn make() -> crate::Problem {
     crate::Problem {
@@ -10,6 +8,18 @@ pub fn make() -> crate::Problem {
         number: 1,
         solve: || core_solve(1000),
     }
+}
+
+fn core_solve(limit: i64) -> i64 {
+    let limit = limit - 1;
+
+    //        3 + 6 + 9 + ... + 3n
+    // = 3 * (1 + 2 + 3 + ... +  n)
+    // = 3 * ( n * (n + 1) / 2 )
+
+    // we can't simplify further because we rely on the integer division truncation
+    3 * Triangle::triangle(limit / 3) + 5 * Triangle::triangle(limit / 5)
+        - 15 * Triangle::triangle(limit / 15)
 }
 
 #[cfg(test)]

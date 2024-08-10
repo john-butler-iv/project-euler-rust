@@ -11,8 +11,7 @@ pub fn make() -> crate::Problem {
 }
 
 fn core_solve() -> i64 {
-    let mut k = 3;
-    loop {
+    for k in 3.. {
         let p_k = Pentagon::pentagon(k);
         for j in (2..k).rev() {
             let p_j = Pentagon::pentagon(j);
@@ -25,8 +24,8 @@ fn core_solve() -> i64 {
             }
             return pentagon_diff;
         }
-        k += 1
     }
+    unreachable!()
 }
 
 #[cfg(test)]

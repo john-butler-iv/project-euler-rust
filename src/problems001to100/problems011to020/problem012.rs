@@ -17,7 +17,7 @@ fn core_solve(min_divisors: usize) -> i64 {
     let primes = Primes::find_primes(limit);
 
     let mut triangle = 0u64;
-    for n in 1..u64::try_from(limit).expect("we are nowhere near overflowing") {
+    for n in 1..limit as u64 {
         triangle += n;
 
         if primes.divisors(&triangle) > min_divisors {

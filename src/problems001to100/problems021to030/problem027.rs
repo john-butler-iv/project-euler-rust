@@ -42,8 +42,7 @@ fn core_solve(limit: usize) -> i64 {
 }
 
 fn count_consecutive_primes(primes: &Primes, a: i64, b: i64) -> i64 {
-    let mut n = 0;
-    loop {
+    for n in 0.. {
         let quad_value = n * n + a * n + b;
         if quad_value < 0 {
             return n;
@@ -51,8 +50,8 @@ fn count_consecutive_primes(primes: &Primes, a: i64, b: i64) -> i64 {
         if !primes.is_prime(&(quad_value as u32)) {
             return n;
         }
-        n += 1;
     }
+    unreachable!()
 }
 
 #[cfg(test)]

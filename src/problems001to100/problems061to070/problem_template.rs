@@ -18,11 +18,11 @@ fn core_solve() -> i64 {
 mod tests {
     #[test]
     fn toy_example() {
-        assert_eq!(super::core_solve(), 0)
+        assert_eq!(super::core_solve(), 0);
     }
 
     #[test]
     fn verify_answer() {
-        assert_eq!((super::make().solve)(), 0)
+        assert_eq!((super::make().solve)(), 0);
     }
 }

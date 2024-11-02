@@ -13,8 +13,10 @@ pub struct Primes {
 
 #[allow(dead_code)]
 impl Primes {
-    pub fn get_prime(&self, prime: usize) -> Option<&u32> {
-        self.primes.get(prime)
+    /// Finds the specified prime, starting with get_prime(0) -> Some(2)
+    /// Returns None if requesting a prime beyond what has been computed
+    pub fn get_prime(&self, prime_index: usize) -> Option<u32> {
+        self.primes.get(prime_index).copied()
     }
 
     pub fn total_primes(&self) -> usize {
@@ -65,7 +67,7 @@ impl Primes {
         if n < self.limit {
             self.prime_table[n as usize]
         } else {
-            panic!()
+            panic!("Tried to find a prime beyond what has been computed")
         }
     }
 
@@ -80,9 +82,10 @@ impl Primes {
             }
             return true;
         }
-        panic!()
+        panic!("Tried to find a prime beyond what has been computed")
     }
 
+    /// Iterates through all primes less than the limit
     pub fn bounded_prime_iterator(&self, limit: u32) -> BoundedRefIterator<u32> {
         BoundedRefIterator::new(limit, self.primes.iter())
     }
@@ -298,7 +301,7 @@ mod tests {
             89, 97,
         ];
         for (i, p) in known_primes.iter().enumerate() {
-            assert_eq!(primes.get_prime(i), Some(p));
+            assert_eq!(primes.get_prime(i), Some(*p));
         }
     }
 

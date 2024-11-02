@@ -11,26 +11,32 @@ In the past, I used a different repo ([Project Euler](https://github.com/john-bu
 As with any Rust project, you can build everything by running `cargo build --release`. Then, you can use `./output/target/project-euler-rust` to run all of the problems! The default behavior is to solve each problem once.
 
 Arguments:
+
 * `time [all]` - This will run all problems 500 times. For each problem it will output the problem name/number, the answer, and the run time (fastest, slowest, and average). For example:
-```
+
+```text
 ==================================================
 Problem 001 Multiples of 3 or 5
-	233168
-	average execution time: 0.002 milliseconds
-	range: 0.002 ms - 0.013 ms
+    233168
+    average execution time: 0.002 milliseconds
+    range: 0.002 ms - 0.013 ms
 ==================================================
 ```
+
 * `time problem_number problem_number ...` - Same as `time [all]` but only the requested problem numbers will be executed. If no number is specified, all problems will be timed.
   * TODO - create a flag that would accept the number of maximum repititions
   * TODO - create a flag that would accept either a per-execution timeout or a per-problem timeout
+
 * `solve [all]` - This will run all problems once. For each problem, it will output, the probblem name/number, the anser, and the run time of the problem. For example:
-```
+
+```text
 ==================================================
 Problem 001 Multiples of 3 or 5
-	233168
-	executed in 0.079 milliseconds
+    233168
+    executed in 0.079 milliseconds
 ==================================================
 ```
+
 * `solve problem_number problem_number ...` - Same as `solve [all]` but only the requested problem numbers will be executed. If no number is specified, all problems will run.
   * TODO - create a flag that would accept a per-problem timeout
 

@@ -41,7 +41,7 @@ fn core_solve(prime_index: usize) -> i64 {
         primes = Primes::find_primes(approx);
     }
 
-    primes.get_prime(prime_index - 1).unwrap_or(&0).to_owned() as i64
+    primes.get_prime(prime_index - 1).unwrap_or(0).to_owned() as i64
 }
 
 #[cfg(test)]

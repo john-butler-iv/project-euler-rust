@@ -1,6 +1,6 @@
 // https://projecteuler.net/problem=44
 
-use crate::euler_tools::Pentagon;
+use crate::euler_tools::figurate_numbers::Pentagon;
 
 pub fn make() -> crate::Problem {
     crate::Problem {

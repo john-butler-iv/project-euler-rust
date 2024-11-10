@@ -5,8 +5,8 @@ use strum::EnumCount;
 use strum_macros::{EnumCount, FromRepr};
 
 use crate::euler_tools::{
-    additional_number_contansts::{PiecewiseAdd, Ratio, Simplifiable},
     prime_finder::Primes,
+    ratio::{PiecewiseAdd, Ratio, Simplifiable},
 };
 
 pub fn make() -> crate::Problem {

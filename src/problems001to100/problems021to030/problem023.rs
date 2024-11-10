@@ -2,7 +2,7 @@
 
 use std::cmp::Ordering;
 
-use crate::euler_tools::{prime_finder::Primes, Triangle};
+use crate::euler_tools::{figurate_numbers::Triangle, prime_finder::Primes};
 
 pub fn make() -> crate::Problem {
     crate::Problem {

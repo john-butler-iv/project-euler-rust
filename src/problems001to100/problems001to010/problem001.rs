@@ -1,6 +1,6 @@
 // https://projecteuler.net/problem=1
 
-use crate::euler_tools::Triangle;
+use crate::euler_tools::figurate_numbers::Triangle;
 
 pub fn make() -> crate::Problem {
     crate::Problem {

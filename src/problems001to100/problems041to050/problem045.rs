@@ -2,7 +2,7 @@
 
 use std::cmp;
 
-use crate::euler_tools::{Hexagon, Pentagon, Triangle};
+use crate::euler_tools::figurate_numbers::{Hexagon, Pentagon, Triangle};
 
 pub fn make() -> crate::Problem {
     crate::Problem {

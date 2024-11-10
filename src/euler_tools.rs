@@ -1,14 +1,15 @@
-pub mod additional_number_contansts;
+pub mod additional_number_constants;
 pub mod collection_tools;
+pub mod figurate_numbers;
 pub mod prime_finder;
+pub mod ratio;
 
 use std::{
     cmp::Ordering,
     ops::{Add, Mul},
 };
 
-use additional_number_contansts::MorePositiveConstants;
-use integer_sqrt::IntegerSquareRoot;
+use additional_number_constants::MorePositiveConstants;
 use num_bigint::BigUint;
 use num_traits::{CheckedAdd, CheckedMul, ConstOne, Num, One, PrimInt, Zero};
 
@@ -326,71 +327,6 @@ pub fn lambert_w_m1_neg_inv(u: f64) -> f64 {
     w
 }
 
-pub trait Triangle {
-    fn triangle(n: Self) -> Self;
-    fn inverse_triangle(n: Self) -> Self;
-}
-
-macro_rules! triangle_impl {
-    ( $($prim_type:ty),* ) => { $(
-        impl Triangle for $prim_type {
-            fn triangle(t: Self)-> Self{
-                t * (t + 1) / 2
-            }
-            fn inverse_triangle(triangle: Self) -> Self {
-                ((8 * triangle + 1).integer_sqrt() - 1) / 2
-            }
-        }
-    )* };
-}
-
-triangle_impl!(u8, u16, u32, u64, u128, usize);
-triangle_impl!(i8, i16, i32, i64, i128, isize);
-
-pub trait Pentagon {
-    fn pentagon(p: Self) -> Self;
-    fn inverse_pentagon(pentagon: Self) -> f64;
-    fn is_pentagonal(pentagon: Self) -> bool;
-}
-
-macro_rules! pentagon_impl {
-    ( $($prim_type: ty), *) => { $(
-        impl Pentagon for $prim_type {
-            #[inline]
-            fn pentagon(p: Self) -> Self {
-                p * (3 * p - 1) / 2
-            }
-            #[inline]
-            fn inverse_pentagon(pentagon: Self) -> f64 {
-                (f64::sqrt((24 * pentagon + 1) as f64) + 1.0) / 6.0
-                // NOTE: if a number is pentagonal, (sqrt(24x + 1) + 1) 6 is the index
-            }
-            fn is_pentagonal(pentagon: Self) -> bool {
-                let inverse_pentagon = Pentagon::inverse_pentagon(pentagon);
-                inverse_pentagon == inverse_pentagon.trunc()
-            }
-        }
-    )* };
-}
-pentagon_impl!(u8, u16, u32, u64, u128, usize);
-pentagon_impl!(i8, i16, i32, i64, i128, isize);
-
-pub trait Hexagon {
-    fn hexagon(h: Self) -> Self;
-}
-
-macro_rules! hexagon_impl {
-    ( $($prim_type:ty), *) => {$(
-        impl Hexagon for $prim_type {
-            fn hexagon(h: Self) -> Self{
-                h * (2 * h - 1)
-            }
-        }
-    )* };
-}
-hexagon_impl!(u8, u16, u32, u64, u128, usize);
-hexagon_impl!(i8, i16, i32, i64, i128, isize);
-
 #[allow(dead_code)]
 pub fn factorial<I: PrimInt + ConstOne>(n: I) -> Option<I> {
     let mut fact: I = I::ONE;
@@ -461,14 +397,13 @@ mod tests {
     use num_traits::Pow;
     use std::ops::Add;
 
+    use super::{fibonacci_iterator, Fibonacci};
+    use crate::euler_tools::is_bin_palindrome;
     #[allow(unused_imports)]
     use crate::euler_tools::{
-        additional_number_contansts::MorePositiveConstants, big_factorial, factorial, IsPandigital,
+        additional_number_constants::MorePositiveConstants, big_factorial, factorial, IsPandigital,
         RotateDigits,
     };
-    use crate::euler_tools::{is_bin_palindrome, Triangle};
-
-    use super::{fibonacci_iterator, Fibonacci};
 
     #[test]
     fn test_fib() {
@@ -539,24 +474,6 @@ mod tests {
                     super::lambert_w_m1_neg_inv(10.0_f64.pow(pow as f64))
                 )
             );
-        }
-    }
-
-    #[test]
-    fn first_ten_tri_nums() {
-        const MAX_TRI: u64 = 10;
-        let mut curr_tri = 0;
-        for n in 0..=MAX_TRI {
-            curr_tri += n;
-            assert_eq!(curr_tri, Triangle::triangle(n));
-        }
-    }
-
-    #[test]
-    fn first_ten_inv_tri_nums() {
-        const MAX_TRI: u64 = 10;
-        for n in 0..=MAX_TRI {
-            assert_eq!(Triangle::inverse_triangle(Triangle::triangle(n)), n);
         }
     }
 

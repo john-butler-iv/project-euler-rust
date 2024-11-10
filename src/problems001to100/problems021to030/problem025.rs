@@ -4,7 +4,7 @@ use num_bigint::BigUint;
 use num_traits::pow;
 use std::cmp::Ordering;
 
-use crate::euler_tools::{additional_number_contansts::MorePositiveConstants, fibonacci_iterator};
+use crate::euler_tools::{additional_number_constants::MorePositiveConstants, fibonacci_iterator};
 
 pub fn make() -> crate::Problem {
     crate::Problem {

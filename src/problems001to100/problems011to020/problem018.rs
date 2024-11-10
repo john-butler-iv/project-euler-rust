@@ -2,7 +2,7 @@
 
 use std::cmp::max;
 
-use crate::euler_tools::Triangle;
+use crate::euler_tools::figurate_numbers::Triangle;
 
 #[allow(clippy::zero_prefixed_literal)]
 pub fn make() -> crate::Problem {
@@ -23,7 +23,7 @@ pub fn make() -> crate::Problem {
 }
 
 fn core_solve(triangle: Vec<i64>) -> i64 {
-    let size = Triangle::inverse_triangle(triangle.len());
+    let size = Triangle::inverse_triangle_lossy(triangle.len());
     assert_eq!(triangle.len(), Triangle::triangle(size));
 
     let mut cache = vec![0; triangle.len()];

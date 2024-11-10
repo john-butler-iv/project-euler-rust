@@ -37,8 +37,6 @@ Problem 001 Multiples of 3 or 5
 
 * `time problem_number problem_number ...` - Same as `time [all]` but only the requested problem
 numbers will be executed. If no number is specified, all problems will be timed.
-  * TODO - create a flag that would accept the number of maximum repititions
-  * TODO - create a flag that would accept either a per-execution timeout or a per-problem timeout
 
 * `solve [all]` - This will run all problems once. For each problem, it will output, the problem
 name/number, the anser, and the run time of the problem. For example:
@@ -53,7 +51,6 @@ Problem 001 Multiples of 3 or 5
 
 * `solve problem_number problem_number ...` - Same as `solve [all]` but only the requested problem
 numbers will be executed. If no number is specified, all problems will run.
-  * TODO - create a flag that would accept a per-problem timeout
 
 For all of these arguments, case is irrelevant, and we you don't have to fill in the entire argument.
 For example `project-euler-rust Ti` will be treated the same as `project-euler-rust time`.

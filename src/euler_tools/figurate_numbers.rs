@@ -1,5 +1,6 @@
 use integer_sqrt::IntegerSquareRoot;
 
+#[allow(dead_code)]
 pub fn shape<Shape>(n: Shape, sides: usize) -> Shape
 where
     Shape: Triangle + Square + Pentagon + Hexagon + Heptagon + Octagon,
@@ -15,6 +16,7 @@ where
     }
 }
 
+#[allow(dead_code)]
 pub fn inverse_shape<Shape>(n: Shape, sides: usize) -> f64
 where
     Shape: Triangle + Square + Pentagon + Hexagon + Heptagon + Octagon,
@@ -30,6 +32,7 @@ where
     }
 }
 
+#[allow(dead_code)]
 pub fn inverse_shape_lossy<Shape>(n: Shape, sides: usize) -> Shape
 where
     Shape: Triangle + Square + Pentagon + Hexagon + Heptagon + Octagon,

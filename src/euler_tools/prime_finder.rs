@@ -277,9 +277,108 @@ impl Primes {
     }
 }
 
+/// Generates pairs of values (p, q) where GCD(p, q) = 1 and p < q such that p, q < limit.
+/// the pairs are not neccessarily in order.
+#[derive(Debug)]
+pub struct CoprimePairsIterator<I> {
+    core_iter: CoreCoprimePairsIterator<I>,
+    limit: I,
+    is_done: bool,
+}
+
+#[derive(Debug)]
+struct CoreCoprimePairsIterator<I> {
+    current_pairs: Vec<(I, I)>,
+    current_index: usize,
+    next_pairs: Vec<(I, I)>,
+    limit: I,
+}
+
+macro_rules! coprime_pairs_iterator_impl {
+    ($($prim_type:ty),*) => { $(
+        impl Iterator for CoprimePairsIterator<$prim_type>{
+            type Item = ($prim_type, $prim_type);
+
+            fn next(&mut self) -> Option<Self::Item>{
+                if self.is_done {
+                    return None;
+                }
+
+                let mut next_pair:Option<Self::Item> = self.core_iter.next();
+                while next_pair.is_some_and(|next_pair|next_pair.1  >= self.limit) {
+                    next_pair = self.core_iter.next();
+                }
+
+                if let Some(next_pair) = next_pair {
+                    if next_pair == (self.limit - 2, self.limit - 1) {
+                        self.is_done = true;
+                    }
+                }
+                else {
+                    self.is_done = true;
+                }
+
+
+                next_pair
+            }
+        }
+        impl Iterator for CoreCoprimePairsIterator<$prim_type>{
+            type Item = ($prim_type, $prim_type);
+
+            fn next(&mut self) -> Option<Self::Item>{
+                if self.current_index == self.current_pairs.len() - 1 {
+                    self.reset_current_pairs();
+                }
+
+                let left = self.current_pairs[self.current_index];
+                let right = self.current_pairs[self.current_index + 1];
+
+                self.current_index += 1;
+
+                let current_pair = (left.0 + right.0, left.1 + right.1);
+                // TODO in theory, we could just not insert values above our limit if memory
+                // or potentially performance becomes a concern
+                if current_pair.1 < self.limit{
+                    self.next_pairs.push(current_pair);
+                }
+                self.next_pairs.push(right);
+
+                Some(current_pair)
+            }
+        }
+        impl CoprimePairsIterator<$prim_type>{
+            pub fn new(limit: $prim_type) -> Self {
+                CoprimePairsIterator {
+                    core_iter: CoreCoprimePairsIterator::<$prim_type>::new(limit),
+                    is_done: false,
+                    limit: max(limit, 2),
+                }
+            }
+        }
+
+        impl CoreCoprimePairsIterator<$prim_type>{
+            pub fn new(limit: $prim_type) -> Self {
+                CoreCoprimePairsIterator{
+                    current_pairs:vec![(0,1), (1,1)],
+                    current_index:0,
+                    next_pairs:vec![(0,1)],
+                    limit,
+                }
+            }
+
+            fn reset_current_pairs(&mut self) {
+                self.current_pairs = std::mem::replace(&mut self.next_pairs, vec![(0,1)]);
+                self.current_index = 0;
+            }
+        }
+    )* };
+}
+coprime_pairs_iterator_impl!(u8, u16, u32, u64, u128, usize);
+coprime_pairs_iterator_impl!(i8, i16, i32, i64, i128, isize);
+
 #[cfg(test)]
 mod tests {
-    use super::Primes;
+    use super::{CoprimePairsIterator, Primes};
 
     #[test]
     fn primes_generated() {
@@ -493,5 +592,48 @@ mod tests {
         assert_eq!(primes.find_gcd_and_reduce_signed(&mut a, &mut b), 10);
         assert_eq!(a, -1);
         assert_eq!(b, 2);
+    }
+
+    #[test]
+    fn coprime_pairs_generator() {
+        let all_generated_coprime_pairs: Vec<_> = CoprimePairsIterator::<usize>::new(10).collect();
+
+        let all_coprime_pairs = vec![
+            (1, 2),
+            (1, 3),
+            (1, 4),
+            (1, 5),
+            (1, 6),
+            (1, 7),
+            (1, 8),
+            (1, 9),
+            (2, 3),
+            (2, 5),
+            (2, 7),
+            (2, 9),
+            (3, 4),
+            (3, 5),
+            (3, 8),
+            (3, 7),
+            (4, 5),
+            (4, 7),
+            (4, 9),
+            (5, 6),
+            (5, 7),
+            (5, 8),
+            (5, 9),
+            (6, 7),
+            (7, 8),
+            (7, 9),
+            (8, 9),
+        ];
+
+        assert_eq!(all_coprime_pairs.len(), all_generated_coprime_pairs.len());
+        for coprime_pair in all_coprime_pairs.iter() {
+            assert!(all_generated_coprime_pairs.contains(coprime_pair));
+        }
+        for coprime_pair in all_generated_coprime_pairs.iter() {
+            assert!(all_coprime_pairs.contains(coprime_pair));
+        }
     }
 }

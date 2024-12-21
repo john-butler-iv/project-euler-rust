@@ -288,9 +288,9 @@ pub struct CoprimePairsIterator<I> {
 
 #[derive(Debug)]
 struct CoreCoprimePairsIterator<I> {
-    current_pairs: Vec<(I, I)>,
+    current_pairs: Vec<Option<(I, I)>>,
     current_index: usize,
-    next_pairs: Vec<(I, I)>,
+    next_pairs: Vec<Option<(I, I)>>,
     limit: I,
 }
 
@@ -330,16 +330,33 @@ macro_rules! coprime_pairs_iterator_impl {
                     self.reset_current_pairs();
                 }
 
-                let left = self.current_pairs[self.current_index];
-                let right = self.current_pairs[self.current_index + 1];
+                while self.current_pairs[self.current_index+1].is_none() || self.current_pairs[self.current_index].is_none() {
+                    if self.current_pairs[self.current_index + 1].is_none() {
+                        self.current_index += 2;
+                    } else if self.current_pairs[self.current_index].is_none() {
+                        self.current_index += 1;
+                    }
+                    if self.current_index >= self.current_pairs.len() -1 {
+                        return None;
+                    }
+                }
+
+                let left = self.current_pairs[self.current_index].unwrap();
+                let right = self.current_pairs[self.current_index + 1].unwrap();
 
                 self.current_index += 1;
 
                 let current_pair = (left.0 + right.0, left.1 + right.1);
                 if current_pair.1 < self.limit{
-                    self.next_pairs.push(current_pair);
+                    self.next_pairs.push(Some(current_pair));
+                } else if self.next_pairs.len() < 2 {
+                    self.next_pairs.push(None);
+                } else if let None = self.next_pairs[self.next_pairs.len() - 2]{
+                    self.next_pairs.pop();
+                } else {
+                    self.next_pairs.push(None);
                 }
-                self.next_pairs.push(right);
+                self.next_pairs.push(Some(right));
 
                 Some(current_pair)
             }
@@ -357,16 +374,17 @@ macro_rules! coprime_pairs_iterator_impl {
         impl CoreCoprimePairsIterator<$prim_type>{
             pub fn new(limit: $prim_type) -> Self {
                 CoreCoprimePairsIterator{
-                    current_pairs:vec![(0,1), (1,1)],
+                    current_pairs:vec![Some((0,1)), Some((1,1))],
                     current_index:0,
-                    next_pairs:vec![(0,1)],
+                    next_pairs:vec![Some((0,1))],
                     limit,
                 }
             }
 
             fn reset_current_pairs(&mut self) {
-                self.current_pairs = std::mem::replace(&mut self.next_pairs, vec![(0,1)]);
+                self.current_pairs = std::mem::replace(&mut self.next_pairs, vec![Some((0,1))]);
                 self.current_index = 0;
+                println!("{}",self.current_pairs.len());
             }
         }
     )* };

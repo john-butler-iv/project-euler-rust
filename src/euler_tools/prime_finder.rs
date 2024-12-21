@@ -276,7 +276,53 @@ impl Primes {
         gcd
     }
 }
+#[derive(Debug)]
+pub struct CoprimePairsIterator {
+    primes: Primes,
+    p: u64,
+    q: u64,
+    limit: u64,
+}
 
+impl Iterator for CoprimePairsIterator {
+    type Item = (u64, u64);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.q >= self.limit {
+            return None;
+        }
+        let ret_vals = (self.p, self.q);
+
+        // the lengths you have to go through for a do-while loop in rust. smh
+        let mut at_least_one_iter = false;
+        while !at_least_one_iter || self.primes.gcd(self.p, self.q) != 1 {
+            at_least_one_iter = true;
+
+            self.p += 1;
+            if self.p >= self.q {
+                self.p = 1;
+                self.q += 1;
+            }
+        }
+
+        Some(ret_vals)
+    }
+}
+
+impl CoprimePairsIterator {
+    pub fn new(limit: u64) -> Self {
+        CoprimePairsIterator {
+            primes: Primes::find_primes(
+                integer_sqrt::IntegerSquareRoot::integer_sqrt(&(limit as usize)) + 1,
+            ),
+            p: 1,
+            q: 1,
+            limit,
+        }
+    }
+}
+
+/*
 /// Generates pairs of values (p, q) where GCD(p, q) = 1 and p < q such that p, q < limit.
 /// the pairs are not neccessarily in order.
 #[derive(Debug)]
@@ -389,8 +435,7 @@ macro_rules! coprime_pairs_iterator_impl {
         }
     )* };
 }
-coprime_pairs_iterator_impl!(u8, u16, u32, u64, u128, usize);
-coprime_pairs_iterator_impl!(i8, i16, i32, i64, i128, isize);
+ */
 
 #[cfg(test)]
 mod tests {
@@ -612,9 +657,10 @@ mod tests {
 
     #[test]
     fn coprime_pairs_generator() {
-        let all_generated_coprime_pairs: Vec<_> = CoprimePairsIterator::<usize>::new(10).collect();
+        let all_generated_coprime_pairs: Vec<_> = CoprimePairsIterator::new(10).collect();
 
         let all_coprime_pairs = [
+            (1, 1),
             (1, 2),
             (1, 3),
             (1, 4),

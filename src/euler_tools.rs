@@ -393,92 +393,92 @@ pub fn big_factorial(n: BigUint) -> BigUint {
 }
 
 #[derive(Debug)]
-pub struct PythagoreanTripleGenerator<I> {
-    core_gen: PrimPythagoreanTripleGenerator<I>,
-    limit: I,
-    next_prim_triple: Option<(I, I, I)>,
-    next_scale: I,
+pub struct PythagoreanTripleGenerator {
+    core_gen: PrimPythagoreanTripleGenerator,
+    limit: u64,
+    next_prim_triple: Option<(u64, u64, u64)>,
+    next_scale: u64,
 }
 
 #[derive(Debug)]
-pub struct PrimPythagoreanTripleGenerator<I> {
-    coprime_gen: CoprimePairsIterator<I>,
-    limit: I,
+pub struct PrimPythagoreanTripleGenerator {
+    coprime_gen: CoprimePairsIterator,
+    limit: u64,
 }
 
-macro_rules! pythagorean_triple_gen_impl {
-    ($($prim_type:ty),*) => { $(
-        impl Iterator for PythagoreanTripleGenerator<$prim_type> {
-            type Item = ($prim_type, $prim_type, $prim_type);
+impl Iterator for PythagoreanTripleGenerator {
+    type Item = (u64, u64, u64);
 
-             fn next(&mut self) -> Option<Self::Item> {
-                let mut current_triple = self.next_prim_triple?;
+    fn next(&mut self) -> Option<Self::Item> {
+        let mut current_triple = self.next_prim_triple?;
 
-                if current_triple.2 * self.next_scale >= self.limit {
-                    self.next_prim_triple = self.core_gen.next();
-                    current_triple = self.next_prim_triple?;
+        if current_triple.2 * self.next_scale >= self.limit {
+            self.next_prim_triple = self.core_gen.next();
+            current_triple = self.next_prim_triple?;
 
-                    self.next_scale = 2;
-                } else {
-                    current_triple.0 *= self.next_scale;
-                    current_triple.1 *= self.next_scale;
-                    current_triple.2 *= self.next_scale;
+            self.next_scale = 2;
+        } else {
+            current_triple.0 *= self.next_scale;
+            current_triple.1 *= self.next_scale;
+            current_triple.2 *= self.next_scale;
 
-                    self.next_scale += 1;
-                }
-
-                Some(current_triple)
-            }
-        }
-        impl Iterator for PrimPythagoreanTripleGenerator<$prim_type> {
-            type Item = ($prim_type, $prim_type, $prim_type);
-
-             fn next(&mut self) -> Option<Self::Item> {
-                let mut coprimes = self.coprime_gen.next()?;
-
-                let mut c = coprimes.1*coprimes.1 + coprimes.0*coprimes.0;
-
-                while c >= self.limit || (coprimes.0 % 2 == coprimes.1 % 2)  {
-                    coprimes = self.coprime_gen.next()?;
-                    c = coprimes.1*coprimes.1 + coprimes.0*coprimes.0;
-                }
-
-                let a = coprimes.1*coprimes.1 - coprimes.0*coprimes.0;
-                let b = 2 * coprimes.1 * coprimes.0;
-
-                if a < b {
-                    Some((a, b, c))
-                } else {
-                    Some((b, a, c))
-                }
-            }
+            self.next_scale += 1;
         }
 
-        impl PythagoreanTripleGenerator<$prim_type> {
-            #[allow(dead_code)]
-            pub fn new(limit: $prim_type) -> Self {
-                let mut core_gen = PrimPythagoreanTripleGenerator::<$prim_type>::new(limit);
-                let first_prim_triple = core_gen.next();
-                PythagoreanTripleGenerator {
-                    core_gen,
-                    limit,
-                    next_prim_triple: first_prim_triple,
-                    next_scale: 1,
-                }
-            }
-        }
-        impl PrimPythagoreanTripleGenerator<$prim_type> {
-            pub fn new(limit: $prim_type) -> Self {
-                PrimPythagoreanTripleGenerator {
-                    coprime_gen: CoprimePairsIterator::<$prim_type>::new(limit),
-                    limit,
-                }
-            }
-        }
-    )* };
+        Some(current_triple)
+    }
 }
-pythagorean_triple_gen_impl!(u8, u16, u32, u64, u128, usize);
-pythagorean_triple_gen_impl!(i8, i16, i32, i64, i128, isize);
+impl Iterator for PrimPythagoreanTripleGenerator {
+    type Item = (u64, u64, u64);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let mut coprimes = self.coprime_gen.next()?;
+
+        if coprimes.1 > integer_sqrt::IntegerSquareRoot::integer_sqrt(&(self.limit * 2)) {
+            return None;
+        }
+
+        let mut c = coprimes.1 * coprimes.1 + coprimes.0 * coprimes.0;
+
+        while coprimes.1 > integer_sqrt::IntegerSquareRoot::integer_sqrt(&(self.limit * 2))
+            || (coprimes.0 % 2 == coprimes.1 % 2)
+        {
+            coprimes = self.coprime_gen.next()?;
+            c = coprimes.1 * coprimes.1 + coprimes.0 * coprimes.0;
+        }
+
+        let a = coprimes.1 * coprimes.1 - coprimes.0 * coprimes.0;
+        let b = 2 * coprimes.1 * coprimes.0;
+
+        if a < b {
+            Some((a, b, c))
+        } else {
+            Some((b, a, c))
+        }
+    }
+}
+
+impl PythagoreanTripleGenerator {
+    #[allow(dead_code)]
+    pub fn new(limit: u64) -> Self {
+        let mut core_gen = PrimPythagoreanTripleGenerator::new(limit);
+        let first_prim_triple = core_gen.next();
+        PythagoreanTripleGenerator {
+            core_gen,
+            limit,
+            next_prim_triple: first_prim_triple,
+            next_scale: 1,
+        }
+    }
+}
+impl PrimPythagoreanTripleGenerator {
+    pub fn new(limit: u64) -> Self {
+        PrimPythagoreanTripleGenerator {
+            coprime_gen: CoprimePairsIterator::new(limit),
+            limit,
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -684,7 +684,7 @@ mod tests {
     #[test]
     fn prim_pythag_triples() {
         let all_generated_prim_triples: Vec<_> =
-            super::PrimPythagoreanTripleGenerator::<usize>::new(50).collect();
+            super::PrimPythagoreanTripleGenerator::new(50).collect();
         let all_prim_triples = [
             (3, 4, 5),
             (5, 12, 13),
@@ -706,8 +706,7 @@ mod tests {
 
     #[test]
     fn all_pythag_triples() {
-        let all_generated_triples: Vec<_> =
-            super::PythagoreanTripleGenerator::<usize>::new(50).collect();
+        let all_generated_triples: Vec<_> = super::PythagoreanTripleGenerator::new(50).collect();
         let all_triples = [
             (3, 4, 5),
             (6, 8, 10),

@@ -336,8 +336,6 @@ macro_rules! coprime_pairs_iterator_impl {
                 self.current_index += 1;
 
                 let current_pair = (left.0 + right.0, left.1 + right.1);
-                // TODO in theory, we could just not insert values above our limit if memory
-                // or potentially performance becomes a concern
                 if current_pair.1 < self.limit{
                     self.next_pairs.push(current_pair);
                 }

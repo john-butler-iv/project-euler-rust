@@ -455,6 +455,7 @@ macro_rules! pythagorean_triple_gen_impl {
         }
 
         impl PythagoreanTripleGenerator<$prim_type> {
+            #[allow(dead_code)]
             pub fn new(limit: $prim_type) -> Self {
                 let mut core_gen = PrimPythagoreanTripleGenerator::<$prim_type>::new(limit);
                 let first_prim_triple = core_gen.next();
@@ -719,7 +720,7 @@ mod tests {
             (27, 36, 45),
             (5, 12, 13),
             (10, 24, 26),
-            (25, 36, 39),
+            (15, 36, 39),
             (7, 24, 25),
             (8, 15, 17),
             (16, 30, 34),
@@ -727,8 +728,6 @@ mod tests {
             (12, 35, 37),
             (20, 21, 29),
         ];
-        println!("{all_triples:?}",);
-        println!("{all_generated_triples:?}",);
 
         assert_eq!(all_triples.len(), all_generated_triples.len());
         for triple in all_triples.iter() {

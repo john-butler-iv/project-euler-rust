@@ -596,7 +596,7 @@ mod tests {
     fn coprime_pairs_generator() {
         let all_generated_coprime_pairs: Vec<_> = CoprimePairsIterator::<usize>::new(10).collect();
 
-        let all_coprime_pairs = vec![
+        let all_coprime_pairs = [
             (1, 2),
             (1, 3),
             (1, 4),

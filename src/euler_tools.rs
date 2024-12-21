@@ -12,6 +12,7 @@ use std::{
 use additional_number_constants::MorePositiveConstants;
 use num_bigint::BigUint;
 use num_traits::{CheckedAdd, CheckedMul, ConstOne, Num, One, PrimInt, Zero};
+use prime_finder::CoprimePairsIterator;
 
 pub struct Fibonacci<I: Clone + Zero + One + CheckedAdd> {
     curr: Option<I>,
@@ -391,6 +392,93 @@ pub fn big_factorial(n: BigUint) -> BigUint {
     fact
 }
 
+#[derive(Debug)]
+pub struct PythagoreanTripleGenerator<I> {
+    core_gen: PrimPythagoreanTripleGenerator<I>,
+    limit: I,
+    next_prim_triple: Option<(I, I, I)>,
+    next_scale: I,
+}
+
+#[derive(Debug)]
+pub struct PrimPythagoreanTripleGenerator<I> {
+    coprime_gen: CoprimePairsIterator<I>,
+    limit: I,
+}
+
+macro_rules! pythagorean_triple_gen_impl {
+    ($($prim_type:ty),*) => { $(
+        impl Iterator for PythagoreanTripleGenerator<$prim_type> {
+            type Item = ($prim_type, $prim_type, $prim_type);
+
+             fn next(&mut self) -> Option<Self::Item> {
+                let mut current_triple = self.next_prim_triple?;
+
+                if current_triple.2 * self.next_scale >= self.limit {
+                    self.next_prim_triple = self.core_gen.next();
+                    current_triple = self.next_prim_triple?;
+
+                    self.next_scale = 2;
+                } else {
+                    current_triple.0 *= self.next_scale;
+                    current_triple.1 *= self.next_scale;
+                    current_triple.2 *= self.next_scale;
+
+                    self.next_scale += 1;
+                }
+
+                Some(current_triple)
+            }
+        }
+        impl Iterator for PrimPythagoreanTripleGenerator<$prim_type> {
+            type Item = ($prim_type, $prim_type, $prim_type);
+
+             fn next(&mut self) -> Option<Self::Item> {
+                let mut coprimes = self.coprime_gen.next()?;
+
+                let mut c = coprimes.1*coprimes.1 + coprimes.0*coprimes.0;
+
+                while c >= self.limit || (coprimes.0 % 2 == coprimes.1 % 2)  {
+                    coprimes = self.coprime_gen.next()?;
+                    c = coprimes.1*coprimes.1 + coprimes.0*coprimes.0;
+                }
+
+                let a = coprimes.1*coprimes.1 - coprimes.0*coprimes.0;
+                let b = 2 * coprimes.1 * coprimes.0;
+
+                if a < b {
+                    Some((a, b, c))
+                } else {
+                    Some((b, a, c))
+                }
+            }
+        }
+
+        impl PythagoreanTripleGenerator<$prim_type> {
+            pub fn new(limit: $prim_type) -> Self {
+                let mut core_gen = PrimPythagoreanTripleGenerator::<$prim_type>::new(limit);
+                let first_prim_triple = core_gen.next();
+                PythagoreanTripleGenerator {
+                    core_gen,
+                    limit,
+                    next_prim_triple: first_prim_triple,
+                    next_scale: 1,
+                }
+            }
+        }
+        impl PrimPythagoreanTripleGenerator<$prim_type> {
+            pub fn new(limit: $prim_type) -> Self {
+                PrimPythagoreanTripleGenerator {
+                    coprime_gen: CoprimePairsIterator::<$prim_type>::new(limit),
+                    limit,
+                }
+            }
+        }
+    )* };
+}
+pythagorean_triple_gen_impl!(u8, u16, u32, u64, u128, usize);
+pythagorean_triple_gen_impl!(i8, i16, i32, i64, i128, isize);
+
 #[cfg(test)]
 mod tests {
     use num_bigint::BigUint;
@@ -590,5 +678,64 @@ mod tests {
     fn are_pandigital() {
         assert!(i64::are_combined_pandigital(&[192, 384, 576]));
         assert!(i64::are_combined_pandigital(&[9, 18, 27, 36, 45]));
+    }
+
+    #[test]
+    fn prim_pythag_triples() {
+        let all_generated_prim_triples: Vec<_> =
+            super::PrimPythagoreanTripleGenerator::<usize>::new(50).collect();
+        let all_prim_triples = [
+            (3, 4, 5),
+            (5, 12, 13),
+            (7, 24, 25),
+            (8, 15, 17),
+            (9, 40, 41),
+            (12, 35, 37),
+            (20, 21, 29),
+        ];
+
+        assert_eq!(all_prim_triples.len(), all_generated_prim_triples.len());
+        for prim_triple in all_prim_triples.iter() {
+            assert!(all_generated_prim_triples.contains(prim_triple));
+        }
+        for prim_triple in all_generated_prim_triples.iter() {
+            assert!(all_prim_triples.contains(prim_triple));
+        }
+    }
+
+    #[test]
+    fn all_pythag_triples() {
+        let all_generated_triples: Vec<_> =
+            super::PythagoreanTripleGenerator::<usize>::new(50).collect();
+        let all_triples = [
+            (3, 4, 5),
+            (6, 8, 10),
+            (9, 12, 15),
+            (12, 16, 20),
+            (15, 20, 25),
+            (18, 24, 30),
+            (21, 28, 35),
+            (24, 32, 40),
+            (27, 36, 45),
+            (5, 12, 13),
+            (10, 24, 26),
+            (25, 36, 39),
+            (7, 24, 25),
+            (8, 15, 17),
+            (16, 30, 34),
+            (9, 40, 41),
+            (12, 35, 37),
+            (20, 21, 29),
+        ];
+        println!("{all_triples:?}",);
+        println!("{all_generated_triples:?}",);
+
+        assert_eq!(all_triples.len(), all_generated_triples.len());
+        for triple in all_triples.iter() {
+            assert!(all_generated_triples.contains(triple));
+        }
+        for triple in all_generated_triples.iter() {
+            assert!(all_triples.contains(triple));
+        }
     }
 }

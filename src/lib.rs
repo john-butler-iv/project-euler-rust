@@ -30,7 +30,8 @@ impl ProblemList {
     fn last_problem_number(&self) -> Option<u16> {
         Some(
             self.find_first_problem_number()?
-                + u16::try_from(self.problem_range.len()).expect("problem range fits into u16"),
+                + u16::try_from(self.problem_range.len()).expect("problem range fits into u16")
+                - 1,
         )
     }
 
@@ -67,14 +68,40 @@ impl ProblemList {
             (_, None) => Ok(self),
             (Some(self_first_problem_number), Some(other_first_problem_number)) => {
                 if self_first_problem_number < other_first_problem_number {
-                    self.join_core(self_first_problem_number, other, other_first_problem_number)
+                    let self_last_problem_number = self.last_problem_number().unwrap();
+                    if self_last_problem_number < other_first_problem_number {
+                        self.join_disjoint(
+                            self_last_problem_number,
+                            other,
+                            other_first_problem_number,
+                        )
+                    } else {
+                        self.join_overlapping(
+                            self_first_problem_number,
+                            other,
+                            other_first_problem_number,
+                        )
+                    }
                 } else {
-                    other.join_core(other_first_problem_number, self, self_first_problem_number)
+                    let other_last_problem_number = other.last_problem_number().unwrap();
+                    if other_last_problem_number < self_first_problem_number {
+                        other.join_disjoint(
+                            other_last_problem_number,
+                            self,
+                            self_first_problem_number,
+                        )
+                    } else {
+                        other.join_overlapping(
+                            other_first_problem_number,
+                            self,
+                            self_first_problem_number,
+                        )
+                    }
                 }
             }
         }
     }
-    fn join_core(
+    fn join_overlapping(
         mut self,
         self_first_problem_number: u16,
         other: ProblemList,
@@ -92,15 +119,32 @@ impl ProblemList {
         );
 
         for (other_index, problem) in other.problem_range.into_iter().enumerate() {
-            if other_index + b >= c {
-                let total_problems: &mut Vec<Option<Problem>> = self.problem_range.as_mut();
-                total_problems.push(problem);
+            if other_index + b > c {
+                self.problem_range.push(problem);
             } else if self.problem_range[other_index + b - a].is_none() {
                 self.problem_range[other_index + b - a] = problem
             } else if problem.is_some() {
                 return Err(ProblemListJoinError::OverlappingEntries);
             }
         }
+
+        Ok(self)
+    }
+
+    fn join_disjoint(
+        mut self,
+        self_last_problem_number: u16,
+        other: ProblemList,
+        other_first_problem_number: u16,
+    ) -> Result<ProblemList, ProblemListJoinError> {
+        assert!(self_last_problem_number < other_first_problem_number);
+        // self: a ----- c
+        // other:                b ----- d
+
+        for _ in (self_last_problem_number + 1)..other_first_problem_number {
+            self.problem_range.push(None);
+        }
+        self.problem_range.extend(other.problem_range);
 
         Ok(self)
     }

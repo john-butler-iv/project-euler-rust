@@ -24,6 +24,7 @@ pub struct ProblemList {
 #[derive(Debug, Copy, Clone)]
 pub enum ProblemListJoinError {
     OverlappingEntries,
+    InvalidProblemOrdering,
 }
 
 impl ProblemList {
@@ -60,6 +61,26 @@ impl ProblemList {
     }
 
     pub fn join(self, other: ProblemList) -> Result<ProblemList, ProblemListJoinError> {
+        let mut new_range_result = self.join_core(other);
+
+        if let Ok(new_range) = new_range_result {
+            let mut greatest_problem_number = 0;
+            for problem in new_range.problem_range.iter() {
+                if let Some(new_problem_number) = problem.map(|problem| problem.number) {
+                    if greatest_problem_number >= new_problem_number {
+                        return Err(ProblemListJoinError::InvalidProblemOrdering);
+                    }
+                    greatest_problem_number = new_problem_number;
+                }
+            }
+
+            new_range_result = Ok(new_range);
+        }
+
+        new_range_result
+    }
+
+    fn join_core(self, other: ProblemList) -> Result<ProblemList, ProblemListJoinError> {
         let self_first_problem_number = self.find_first_problem_number();
         let other_first_problem_number = other.find_first_problem_number();
 
@@ -101,6 +122,7 @@ impl ProblemList {
             }
         }
     }
+
     fn join_overlapping(
         mut self,
         self_first_problem_number: u16,

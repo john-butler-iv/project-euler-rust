@@ -37,6 +37,6 @@ fn core_solve() -> i64 {
 mod tests {
     #[test]
     fn verify_answer() {
-        //assert_eq!((super::make().solve)(), 0);
+        assert_eq!((super::make().solve)(), 161667);
     }
 }

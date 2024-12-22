@@ -4,7 +4,7 @@ use crate::euler_tools::{prime_finder::Primes, DigitIterator};
 
 pub fn make() -> crate::Problem {
     crate::Problem {
-        title: "template",
+        title: "Prime Permutations",
         number: 49,
         solve: || core_solve(1487),
     }

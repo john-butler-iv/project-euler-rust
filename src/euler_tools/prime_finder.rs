@@ -113,6 +113,10 @@ impl Primes {
             }
         }
 
+        if n != 1 {
+            factors.push(n);
+        }
+
         factors
     }
 
@@ -139,6 +143,10 @@ impl Primes {
                     break;
                 }
             }
+        }
+
+        if n != 1 {
+            factors.push(n);
         }
 
         factors

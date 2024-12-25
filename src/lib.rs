@@ -28,6 +28,30 @@ pub enum ProblemListJoinError {
 }
 
 impl ProblemList {
+    fn from_problem_set(problems: Vec<Problem>) -> ProblemList {
+        if problems.is_empty() {
+            return ProblemList {
+                problem_range: Vec::new(),
+            };
+        }
+
+        let mut smallest_problem_number = problems[0].number;
+        let mut largest_problem_number = problems[1].number;
+
+        for problem in problems.iter().skip(1) {
+            smallest_problem_number = std::cmp::min(problem.number, smallest_problem_number);
+            largest_problem_number = std::cmp::max(problem.number, largest_problem_number);
+        }
+
+        let mut problem_range: Vec<Option<Problem>> =
+            vec![None; (largest_problem_number - smallest_problem_number) as usize + 1];
+        for problem in problems {
+            problem_range[(problem.number - smallest_problem_number) as usize] = Some(problem);
+        }
+
+        ProblemList { problem_range }
+    }
+
     fn last_problem_number(&self) -> Option<u16> {
         Some(
             self.find_first_problem_number()?

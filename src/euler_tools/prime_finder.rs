@@ -1,4 +1,4 @@
-use std::cmp::max;
+use std::{cmp::max, collections::VecDeque};
 
 use integer_sqrt::IntegerSquareRoot;
 
@@ -284,166 +284,49 @@ impl Primes {
         gcd
     }
 }
+
 #[derive(Debug)]
 pub struct CoprimePairsIterator {
-    primes: Primes,
-    p: u64,
-    q: u64,
+    unreviewed_pairs: VecDeque<(u64, u64)>,
+    current_pair: (u64, u64),
     limit: u64,
+}
+
+impl CoprimePairsIterator {
+    pub fn new(limit: u64) -> Self {
+        let mut unreviewed_pairs = VecDeque::new();
+        unreviewed_pairs.push_front((1, 1));
+        unreviewed_pairs.push_front((1, 2));
+
+        CoprimePairsIterator {
+            unreviewed_pairs,
+            current_pair: (0, 1),
+            limit,
+        }
+    }
 }
 
 impl Iterator for CoprimePairsIterator {
     type Item = (u64, u64);
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.q >= self.limit {
-            return None;
-        }
-        let ret_vals = (self.p, self.q);
+        self.unreviewed_pairs.front()?;
 
-        // the lengths you have to go through for a do-while loop in rust. smh
-        let mut at_least_one_iter = false;
-        while !at_least_one_iter || self.primes.gcd(self.p, self.q) != 1 {
-            at_least_one_iter = true;
+        let (p1, q1) = self.current_pair;
 
-            self.p += 1;
-            if self.p >= self.q {
-                self.p = 1;
-                self.q += 1;
+        loop {
+            let (p2, q2) = self.unreviewed_pairs.front().unwrap();
+            if q1 + q2 >= self.limit {
+                break;
             }
+            let new_pair = (p1 + p2, q1 + q2);
+            self.unreviewed_pairs.push_front(new_pair);
         }
 
-        Some(ret_vals)
+        self.current_pair = self.unreviewed_pairs.pop_front().unwrap();
+        Some(self.current_pair)
     }
 }
-
-impl CoprimePairsIterator {
-    pub fn new(limit: u64) -> Self {
-        CoprimePairsIterator {
-            primes: Primes::find_primes(
-                integer_sqrt::IntegerSquareRoot::integer_sqrt(&(limit as usize)) + 1,
-            ),
-            p: 1,
-            q: 1,
-            limit,
-        }
-    }
-}
-
-/*
-/// Generates pairs of values (p, q) where GCD(p, q) = 1 and p < q such that p, q < limit.
-/// the pairs are not neccessarily in order.
-#[derive(Debug)]
-pub struct CoprimePairsIterator<I> {
-    core_iter: CoreCoprimePairsIterator<I>,
-    limit: I,
-    is_done: bool,
-}
-
-#[derive(Debug)]
-struct CoreCoprimePairsIterator<I> {
-    current_pairs: Vec<Option<(I, I)>>,
-    current_index: usize,
-    next_pairs: Vec<Option<(I, I)>>,
-    limit: I,
-}
-
-macro_rules! coprime_pairs_iterator_impl {
-    ($($prim_type:ty),*) => { $(
-        impl Iterator for CoprimePairsIterator<$prim_type>{
-            type Item = ($prim_type, $prim_type);
-
-            fn next(&mut self) -> Option<Self::Item>{
-                if self.is_done {
-                    return None;
-                }
-
-                let mut next_pair:Option<Self::Item> = self.core_iter.next();
-                while next_pair.is_some_and(|next_pair|next_pair.1  >= self.limit) {
-                    next_pair = self.core_iter.next();
-                }
-
-                if let Some(next_pair) = next_pair {
-                    if next_pair == (self.limit - 2, self.limit - 1) {
-                        self.is_done = true;
-                    }
-                }
-                else {
-                    self.is_done = true;
-                }
-
-
-                next_pair
-            }
-        }
-        impl Iterator for CoreCoprimePairsIterator<$prim_type>{
-            type Item = ($prim_type, $prim_type);
-
-            fn next(&mut self) -> Option<Self::Item>{
-                if self.current_index == self.current_pairs.len() - 1 {
-                    self.reset_current_pairs();
-                }
-
-                while self.current_pairs[self.current_index+1].is_none() || self.current_pairs[self.current_index].is_none() {
-                    if self.current_pairs[self.current_index + 1].is_none() {
-                        self.current_index += 2;
-                    } else if self.current_pairs[self.current_index].is_none() {
-                        self.current_index += 1;
-                    }
-                    if self.current_index >= self.current_pairs.len() -1 {
-                        return None;
-                    }
-                }
-
-                let left = self.current_pairs[self.current_index].unwrap();
-                let right = self.current_pairs[self.current_index + 1].unwrap();
-
-                self.current_index += 1;
-
-                let current_pair = (left.0 + right.0, left.1 + right.1);
-                if current_pair.1 < self.limit{
-                    self.next_pairs.push(Some(current_pair));
-                } else if self.next_pairs.len() < 2 {
-                    self.next_pairs.push(None);
-                } else if let None = self.next_pairs[self.next_pairs.len() - 2]{
-                    self.next_pairs.pop();
-                } else {
-                    self.next_pairs.push(None);
-                }
-                self.next_pairs.push(Some(right));
-
-                Some(current_pair)
-            }
-        }
-        impl CoprimePairsIterator<$prim_type>{
-            pub fn new(limit: $prim_type) -> Self {
-                CoprimePairsIterator {
-                    core_iter: CoreCoprimePairsIterator::<$prim_type>::new(limit),
-                    is_done: false,
-                    limit: max(limit, 2),
-                }
-            }
-        }
-
-        impl CoreCoprimePairsIterator<$prim_type>{
-            pub fn new(limit: $prim_type) -> Self {
-                CoreCoprimePairsIterator{
-                    current_pairs:vec![Some((0,1)), Some((1,1))],
-                    current_index:0,
-                    next_pairs:vec![Some((0,1))],
-                    limit,
-                }
-            }
-
-            fn reset_current_pairs(&mut self) {
-                self.current_pairs = std::mem::replace(&mut self.next_pairs, vec![Some((0,1))]);
-                self.current_index = 0;
-                println!("{}",self.current_pairs.len());
-            }
-        }
-    )* };
-}
- */
 
 #[cfg(test)]
 mod tests {
@@ -698,7 +581,10 @@ mod tests {
             (8, 9),
         ];
 
-        assert_eq!(all_coprime_pairs.len(), all_generated_coprime_pairs.len());
+        assert_eq!(
+            all_coprime_pairs.len(),
+            all_generated_coprime_pairs.clone().len()
+        );
         for coprime_pair in all_coprime_pairs.iter() {
             assert!(all_generated_coprime_pairs.contains(coprime_pair));
         }

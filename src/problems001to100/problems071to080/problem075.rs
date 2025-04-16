@@ -15,9 +15,14 @@ fn core_solve() -> i64 {
     let mut perimeter_cache = [0; LIMIT + 1];
     let mut total_unique_perimeters = 0;
 
-    for triple in PythagoreanTripleGenerator::new((LIMIT + 1) as u64 / 2) {
+    let mut iter = PythagoreanTripleGenerator::new((LIMIT + 1) as u64 / 2);
+
+    let mut maybe_triple = iter.next();
+    while let Some(triple) = maybe_triple {
         let perimeter = (triple.0 + triple.1 + triple.2) as usize;
         if perimeter > LIMIT {
+            iter.next_prim();
+            maybe_triple = iter.next();
             continue;
         }
 
@@ -28,6 +33,7 @@ fn core_solve() -> i64 {
             _ => 0,
         };
         perimeter_cache[perimeter] = previous_perimeter_occurances + 1;
+        maybe_triple = iter.next();
     }
 
     total_unique_perimeters

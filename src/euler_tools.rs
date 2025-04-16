@@ -432,16 +432,16 @@ impl Iterator for PrimPythagoreanTripleGenerator {
     type Item = (u64, u64, u64);
 
     fn next(&mut self) -> Option<Self::Item> {
-        let mut coprimes = self.coprime_gen.next()?;
+        let mut coprimes;
+        let mut c;
 
-        if coprimes.1 > integer_sqrt::IntegerSquareRoot::integer_sqrt(&(self.limit * 2)) {
-            return None;
-        }
-        let mut c = coprimes.1 * coprimes.1 + coprimes.0 * coprimes.0;
-
-        while coprimes.0 % 2 == coprimes.1 % 2 {
+        loop {
             coprimes = self.coprime_gen.next()?;
             c = coprimes.1 * coprimes.1 + coprimes.0 * coprimes.0;
+
+            if c < self.limit && coprimes.0 % 2 != coprimes.1 % 2 {
+                break;
+            }
         }
 
         let a = coprimes.1 * coprimes.1 - coprimes.0 * coprimes.0;
@@ -466,6 +466,11 @@ impl PythagoreanTripleGenerator {
             next_prim_triple: first_prim_triple,
             next_scale: 1,
         }
+    }
+
+    pub fn next_prim(&mut self) {
+        self.next_prim_triple = self.core_gen.next();
+        self.next_scale = 1;
     }
 }
 impl PrimPythagoreanTripleGenerator {
@@ -696,7 +701,7 @@ mod tests {
 
         assert_eq!(all_prim_triples.len(), all_generated_prim_triples.len());
         for prim_triple in all_prim_triples.iter() {
-            assert!(all_generated_prim_triples.contains(prim_triple));
+            assert!(dbg!(all_generated_prim_triples.contains(dbg!(prim_triple))));
         }
         for prim_triple in all_generated_prim_triples.iter() {
             assert!(all_prim_triples.contains(prim_triple));

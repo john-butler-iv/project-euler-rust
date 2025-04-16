@@ -1,3 +1,4 @@
+#![feature(linked_list_cursors)]
 use std::time::{Duration, SystemTime};
 
 mod euler_tools;

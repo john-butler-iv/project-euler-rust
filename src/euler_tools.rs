@@ -437,12 +437,9 @@ impl Iterator for PrimPythagoreanTripleGenerator {
         if coprimes.1 > integer_sqrt::IntegerSquareRoot::integer_sqrt(&(self.limit * 2)) {
             return None;
         }
-
         let mut c = coprimes.1 * coprimes.1 + coprimes.0 * coprimes.0;
 
-        while coprimes.1 > integer_sqrt::IntegerSquareRoot::integer_sqrt(&(self.limit * 2))
-            || (coprimes.0 % 2 == coprimes.1 % 2)
-        {
+        while coprimes.0 % 2 == coprimes.1 % 2 {
             coprimes = self.coprime_gen.next()?;
             c = coprimes.1 * coprimes.1 + coprimes.0 * coprimes.0;
         }
@@ -474,7 +471,9 @@ impl PythagoreanTripleGenerator {
 impl PrimPythagoreanTripleGenerator {
     pub fn new(limit: u64) -> Self {
         PrimPythagoreanTripleGenerator {
-            coprime_gen: CoprimePairsIterator::new(limit),
+            coprime_gen: CoprimePairsIterator::new(integer_sqrt::IntegerSquareRoot::integer_sqrt(
+                &(limit * 2),
+            )),
             limit,
         }
     }

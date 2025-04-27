@@ -1,5 +1,5 @@
 mod problem061;
-//mod problem062;
+mod problem062;
 //mod problem063;
 //mod problem064;
 //mod problem065;
@@ -16,14 +16,14 @@ pub fn make_range() -> crate::ProblemList {
 fn make_problem_list() -> Vec<crate::Problem> {
     vec![
         problem061::make(),
-        //Some(problem062::make()),
-        //Some(problem063::make()),
-        //Some(problem064::make()),
-        //Some(problem065::make()),
-        //Some(problem066::make()),
+        problem062::make(),
+        //problem063::make(),
+        //problem064::make(),
+        //problem065::make(),
+        //problem066::make(),
         problem067::make(),
-        //Some(problem068::make()),
+        //problem068::make(),
         problem069::make(),
-        //Some(problem070::make()),
+        //problem070::make(),
     ]
 }

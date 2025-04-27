@@ -13,7 +13,7 @@ pub fn make() -> crate::Problem {
     }
 }
 
-fn is_substring_divisible(digits: &[i64]) -> bool {
+fn is_substring_divisible(digits: &[u8]) -> bool {
     // digits are little-endian, so the indexes don't match the problem
     digits[6] & 1 == 0
         && (digits[5] + digits[6] + digits[7]) % 3 == 0

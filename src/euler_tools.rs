@@ -140,10 +140,10 @@ macro_rules! digit_iterator_impl {
                 DigitIterator::new_radix(number, 10)
             }
             #[allow(dead_code)]
-            pub fn combine_digits(digits: &[$prim_type]) -> $prim_type{
-                let mut num = 0;
+            pub fn combine_digits(digits: &[u8]) -> $prim_type{
+                let mut num:$prim_type = 0;
                 for digit in digits.iter().rev(){
-                    num = 10 * num + digit;
+                    num = 10 * num + (*digit as $prim_type);
                 }
                 num
             }
@@ -168,7 +168,7 @@ macro_rules! digit_iterator_impl {
             }
 
             #[allow(dead_code)]
-            pub fn are_digital_permutations(digit_set1: &[$prim_type; 10], digit_set2: &[$prim_type; 10])-> bool{
+            pub fn are_digital_permutations(digit_set1: &[u8; 10], digit_set2: &[u8; 10])-> bool{
                 for (digit_count1, digit_count2) in digit_set1.iter().zip(digit_set2.iter()) {
                     if digit_count1 != digit_count2 {
                         return false;
@@ -178,7 +178,7 @@ macro_rules! digit_iterator_impl {
             }
 
             #[allow(dead_code)]
-            pub fn create_digit_set(num: $prim_type) -> [$prim_type; 10]{
+            pub fn create_digit_set(num: $prim_type) -> [u8; 10]{
                 let mut digit_set = [0;10];
                 for digit in DigitIterator::<$prim_type>::new(num){
                     digit_set[digit as usize] += 1;

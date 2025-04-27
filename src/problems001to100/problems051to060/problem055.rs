@@ -44,10 +44,10 @@ fn compute_is_lychrel_core(
     depth: usize,
     big_limit: &BigUint,
 ) -> bool {
-    let reversed_n = BigUint::from_str(unsafe {
-        &String::from_utf8_unchecked(format!("{n}").bytes().rev().collect::<Vec<u8>>())
-    })
-    .expect("string built from manipulated digits should still be a valid uint");
+    let reversed_n_str = unsafe {
+        String::from_utf8_unchecked(format!("{n}").bytes().rev().collect::<Vec<u8>>())
+    };
+    let reversed_n = BigUint::from_str(&reversed_n_str).expect("string built from manipulated digits should still be a valid uint");
     let next_n = &n + &reversed_n;
 
     let check_can_index = |n: &BigUint| {

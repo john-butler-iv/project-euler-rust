@@ -2,7 +2,7 @@
 [package]
 name = "project-euler-rust"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [profile.release]
 lto = true
@@ -13,6 +13,7 @@ integer-sqrt = "0.1"
 strum = "0.26"
 strum_macros = "0.26"
 num-bigint = "0.4"
+bigdecimal = "0.4"
 icu = "1.4"
 num-format = "0.4.4"
 radix_fmt = "1"

@@ -2,6 +2,7 @@ use std::time::{Duration, SystemTime};
 
 mod euler_tools;
 mod problems001to100;
+mod problems101to200;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Problem {
@@ -361,6 +362,8 @@ impl ProblemTimer for ProblemList {
 
 pub fn make_all_problems() -> ProblemList {
     problems001to100::make_range()
+        .join(problems101to200::make_range())
+        .expect("problem list could not be joined")
     //.join(other_problems::make_range())
     //.expect("problem list could not be joined")
 }

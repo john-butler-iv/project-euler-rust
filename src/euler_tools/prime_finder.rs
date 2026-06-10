@@ -76,7 +76,7 @@ impl Primes {
             return self.prime_table[n as usize];
         } else if n < self.limit * self.limit {
             for prime in self.prime_iterator() {
-                if n % prime == 0 {
+                if n.is_multiple_of(*prime) {
                     return false;
                 }
             }
@@ -86,11 +86,11 @@ impl Primes {
     }
 
     /// Iterates through all primes less than the limit
-    pub fn bounded_prime_iterator(&self, limit: u32) -> BoundedRefIterator<u32> {
+    pub fn bounded_prime_iterator(&'_ self, limit: u32) -> BoundedRefIterator<'_, u32> {
         BoundedRefIterator::new(limit, self.primes.iter())
     }
 
-    pub fn prime_iterator(&self) -> std::slice::Iter<u32> {
+    pub fn prime_iterator(&'_ self) -> std::slice::Iter<'_, u32> {
         self.primes.iter()
     }
 
@@ -104,7 +104,7 @@ impl Primes {
         let mut n = n;
         for p in self.prime_iterator() {
             let p = p.to_owned() as u64;
-            while n % p == 0 {
+            while n.is_multiple_of(p) {
                 factors.push(p);
                 n /= p;
             }
@@ -130,11 +130,11 @@ impl Primes {
         let mut n = n;
         for p in self.prime_iterator() {
             let p = p.to_owned() as u64;
-            if n % p == 0 {
+            if n.is_multiple_of(p) {
                 factors.push(p);
                 loop {
                     n /= p;
-                    if n % p != 0 {
+                    if !n.is_multiple_of(p) {
                         break;
                     }
                 }
@@ -166,7 +166,7 @@ impl Primes {
         let sqrt = n.integer_sqrt();
 
         for i in 2..sqrt {
-            if n % i == 0 {
+            if n.is_multiple_of(i) {
                 lower_factors.push(i);
                 upper_factors.push(n / i);
             }
@@ -174,7 +174,7 @@ impl Primes {
 
         if sqrt * sqrt == n {
             lower_factors.push(sqrt);
-        } else if n % sqrt == 0 {
+        } else if n.is_multiple_of(sqrt) {
             lower_factors.push(sqrt);
             upper_factors.push(n / sqrt);
         }
@@ -242,13 +242,13 @@ impl Primes {
         if *a == 1 || *b == 1 {
             return 1;
         }
-        if *a == 0 || *a % *b == 0 {
+        if *a == 0 || a.is_multiple_of(*b) {
             let gcd = *b;
             *a /= gcd;
             *b = 1;
             return gcd;
         }
-        if *b == 0 || *b % *a == 0 {
+        if *b == 0 || b.is_multiple_of(*a) {
             let gcd = *a;
             *b /= gcd;
             *a = 1;
@@ -259,7 +259,7 @@ impl Primes {
         // and comparing the lists
         let mut gcd = 1;
         for a_factor in self.prime_factorize(*a) {
-            if *b % a_factor == 0 {
+            if b.is_multiple_of(a_factor) {
                 *b /= a_factor;
                 gcd *= a_factor;
             }
